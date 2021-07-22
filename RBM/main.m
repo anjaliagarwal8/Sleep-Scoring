@@ -1,4 +1,4 @@
-%% Main program to execute Random Boltzmann Machines
+%% Main program to execute Restricted Boltzmann Machines
 
 %% Training data
 
