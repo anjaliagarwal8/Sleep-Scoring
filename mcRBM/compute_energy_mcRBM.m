@@ -1,5 +1,6 @@
 function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,small)
     
+    num_vis = length(vb);
     % normalize the data
     t6 = data .* data;
     lengthsq = sum(t6);
@@ -31,7 +32,9 @@ function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,
     t6 = t6 .* (-1);
     energy = energy + sum(t6);
     
-    
+    % kinetic
+    t6 = vel.*vel;
+    energy = energy + sum(t6).*0.5;
     
     
 end
