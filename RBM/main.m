@@ -1,4 +1,5 @@
 %% Main program to execute Restricted Boltzmann Machines
+% Here parameters and data can be initialized
 
 %% Training data
 
