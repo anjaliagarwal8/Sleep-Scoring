@@ -6,8 +6,33 @@ function [hmc_step, hmc_ave_rej] = draw_HMC_samples(data,negdata,normdata,VF,FH,
     gradient = 0;
     normgradient = 
     
-    [energy,vel] = compute_energy_mcRBM(negdata,vel,VF,FH,hb_cov,vb,W,hb_mean,small);
+    [old_energy,vel] = compute_energy_mcRBM(negdata,vel,VF,FH,hb_cov,vb,W,hb_mean,small);
     gradient = compute_gradient_mcRBM(negdata,VF,FH,hb_cov,vb,W,hb_mean,small);
     
-
+    % Half step
+    vel = vel + gradient*(-0.5)*hmc_step;
+    negdata = negdata + vel*hmc_step;
+    
+    % full leap-frog steps
+    for ss=1:hmc_step_nr-1
+        % Re-evaluate the gradient
+        gradient = compute_gradient_mcRBM(negdata,VF,FH,hb_cov,vb,W,hb_mean,small);
+        
+        % update variables
+        vel = vel + gradient*(-hmc_step);
+        negdata = negdata + vel*hmc_step;
+     
+    end
+    
+    % Final half step
+    gradient = compute_gradient_mcRBM(negdata,VF,FH,hb_cov,vb,W,hb_mean,small);
+    vel = vel + gradient*(-0.5)*hmc_step;
+    
+    % compute new energy
+    [new_energy,vel] = compute_energy_mcRBM(negdata,vel,VF,FH,hb_cov,vb,W,hb_mean,small);
+    
+    %Rejection
+    thresh = exp(old_energy - new_energy);
+    t4 = rand(1,batch_size);
+    
 end
