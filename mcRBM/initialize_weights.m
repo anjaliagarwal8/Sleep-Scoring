@@ -1,4 +1,4 @@
-function [W,vb,hb_mean,hb_cov,VF,FH] = initialize_weights(n_vis,n_hid_mean,n_hid_cov,num_fac)
+function [W,VF,FH,vb,hb_cov,hb_mean] = initialize_weights(n_vis,n_hid_mean,n_hid_cov,num_fac)
 %% 
 % Function to initialize the weights and biases of mcRBM using number 
 % of hidden nodes (covariance and mean) and visible nodes

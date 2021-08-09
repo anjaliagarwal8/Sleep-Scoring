@@ -22,7 +22,6 @@ epsilonb_mean = 0.1*epsilon;
     
 % mRBM parameters
 n_hid_mean = 100; % number of mean hidden units
-gibbs_steps = 1;
 
 % cRBM parameters
 n_hid_cov = 100; % number of covariance hidden units
@@ -36,10 +35,9 @@ hmc_ave_rej =  hmc_target_ave_rej;
 
 %% Initializing the weights and biases for the network
 
-[W,vb,hb_mean,hb_cov,VF,FH] = initialize_weights(n_vis,n_hid_mean,n_hid_cov,num_fac);
+[W,VF,FH,vb,hb_cov,hb_mean] = initialize_weights(n_vis,n_hid_mean,n_hid_cov,num_fac);
 
-%% Training the RBM with the data and extracting updated weights and biases with the error 
-% on each iteration
+%% Training the RBM with the data and extracting updated weights and biases  
 
-[W,vb,hb,error] = train_mcRBM(dat,W,vb,hb,gibbs_steps,learning_rate,n_epochs);
+[W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,n_vis,num_fac,n_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final);
 
