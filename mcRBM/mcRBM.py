@@ -1,8 +1,8 @@
+import sys
+from scipy.io import loadmat, savemat
+from ConfigParser import *
 import numpy as np
 import torch
-
-
-
 
 ######################################################
 # mcRBM trainer: sweeps over the training set.
@@ -10,20 +10,25 @@ import torch
 # at the training samples and at the negative samples drawn calling HMC sampler.
 def train_mcRBM():
     
-    num_epochs = 
-    batch_size = 
-    startFH = 
-    startwd = 
-    doPCD = 
-    
+    config = ConfigParser()
+    config.read('input_configuration')
+
+    verbose = config.getint('VERBOSITY','verbose')
+
+    num_epochs = config.getint('MAIN_PARAMETER_SETTING','num_epochs')
+    batch_size = config.getint('MAIN_PARAMETER_SETTING','batch_size')
+    startFH = config.getint('MAIN_PARAMETER_SETTING','startFH')
+    startwd = config.getint('MAIN_PARAMETER_SETTING','startwd')
+    doPCD = config.getint('MAIN_PARAMETER_SETTING','doPCD')
+
     # model parameters
-    num_fac = 
-    num_hid_cov =  
-    num_hid_mean =  
-    apply_mask =  
+    num_fac = config.getint('MODEL_PARAMETER_SETTING','num_fac')
+    num_hid_cov =  config.getint('MODEL_PARAMETER_SETTING','num_hid_cov')
+    num_hid_mean =  config.getint('MODEL_PARAMETER_SETTING','num_hid_mean')
+    apply_mask =  config.getint('MODEL_PARAMETER_SETTING','apply_mask')
     
     # load data
-    data_file_name =  
+    data_file_name =  config.get('DATA','data_file_name')
     d = loadmat(data_file_name) # input in the format PxD (P vectorized samples with D dimensions)
     totnumcases = d["whitendata"].shape[0]
     d = d["whitendata"][0:floor(totnumcases/batch_size)*batch_size,:].copy() 
@@ -33,16 +38,16 @@ def train_mcRBM():
     dev_dat = torch.tensor(d.T) # VxP 
     
     # training parameters
-    epsilon = 
+    epsilon = config.getfloat('OPTIMIZER_PARAMETERS','epsilon')
     epsilonVF = 2*epsilon
     epsilonFH = 0.02*epsilon
     epsilonb = 0.02*epsilon
     epsilonw_mean = 0.2*epsilon
     epsilonb_mean = 0.1*epsilon
-    weightcost_final =  
+    weightcost_final =  config.getfloat('OPTIMIZER_PARAMETERS','weightcost_final')
 
     # HMC setting
-    hmc_step_nr = 
+    hmc_step_nr = config.getint('HMC_PARAMETERS','hmc_step_nr')
     hmc_step =  0.01
     hmc_target_ave_rej =  config.getfloat('HMC_PARAMETERS','hmc_target_ave_rej')
     hmc_ave_rej =  hmc_target_ave_rej
@@ -102,7 +107,13 @@ def train_mcRBM():
     t9 = torch.tensor( np.array(np.zeros((num_fac, num_hid_cov)), dtype=np.float32, order='F'))
     t10 = torch.tensor( np.array(np.empty((1,num_fac)), dtype=np.float32, order='F'))
     t11 = torch.tensor( np.array(np.empty((1,num_hid_cov)), dtype=np.float32, order='F'))
+    
+    # start training
+    for epoch in range(num_epochs):
 
+        print("Epoch " + str(epoch + 1))
+        
+        
 if __name__ == "__main__":
     
     train_mcRBM()
