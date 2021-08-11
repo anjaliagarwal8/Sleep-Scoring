@@ -108,11 +108,95 @@ def train_mcRBM():
     t10 = torch.tensor( np.array(np.empty((1,num_fac)), dtype=np.float32, order='F'))
     t11 = torch.tensor( np.array(np.empty((1,num_hid_cov)), dtype=np.float32, order='F'))
     
+    
     # start training
     for epoch in range(num_epochs):
 
         print("Epoch " + str(epoch + 1))
         
+        # anneal learning rates
+        epsilonVFc    = epsilonVF/max(1,epoch/20)
+        epsilonFHc    = epsilonFH/max(1,epoch/20)
+        epsilonbc    = epsilonb/max(1,epoch/20)
+        epsilonw_meanc = epsilonw_mean/max(1,epoch/20)
+        epsilonb_meanc = epsilonb_mean/max(1,epoch/20)
+        weightcost = weightcost_final
+        
+        if epoch <= startFH:
+            epsilonFHc = 0 
+        if epoch <= startwd:	
+            weightcost = 0
+
+        for batch in range(num_batches):
+
+            # get current minibatch
+            data = dev_dat.narrow(1,batch*batch_size,(batch + 1)*batch_size) # DxP (nr dims x nr samples)
+            
+            # normalize input data
+            torch.mul(data, data, out = t6) # DxP
+            torch.sum(t6, 0, keepdims = True, out = lengthsq) # 1xP
+            torch.mul(lengthsq, 1./num_vis, out = lengthsq) # normalize by number of components (like std)
+            torch.add(lengthsq, small, out = lengthsq) # small avoids division by 0
+            torch.sqrt(lengthsq, out = length)
+            torch.reciprocal(length, out = normcoeff) # 1xP
+            torch.mul(data, normcoeff, out = normdata) # normalized data
+            
+            ## compute positive sample derivatives
+            # covariance part
+            torch.matmul(VF.T, normdata, out = feat) # HxP (nr facs x nr samples)
+            torch.mul(feat, feat, out = featsq)   # HxP
+            torch.matmul(FH.T,featsq, out = t1) # OxP (nr cov hiddens x nr samples)
+            torch.mul(t1,-0.5,out = t1)
+            torch.add(t1,bias_cov, out = t1) # OxP
+            torch.sigmoid(t1, out = t2) # OxP
+            torch.matmul(featsq, t2.T, out = FHinc) # HxO
+            torch.matmul(FH,t2, out = t3) # HxP
+            torch.mul(t3,feat, out = t3)
+            torch.matmul(normdata, t3.T, out = VFinc) # VxH
+            torch.sum(t2, 1, keepdims= True, out = bias_covinc)
+            torch.mul(bias_covinc, -1, out = bias_covinc)
+            
+            # visible bias
+            torch.sum(data, 1, keepdims = True, out = bias_visinc)
+            torch.mul(bias_visinc, -1, out = bias_visinc)
+            # mean part
+            torch.matmul(w_mean.T, data, out = feat_mean) # HxP (nr mean hiddens x nr samples)
+            torch.add(feat_mean, bias_mean, out = feat_mean) # HxP
+            torch.sigmoid(feat_mean, out = feat_mean) # HxP
+            torch.mul(feat_mean, -1, out = feat_mean)
+            torch.matmul(data, feat_mean.T, out = w_meaninc)
+            torch.sum(feat_mean, 1, out = bias_meaninc)
+            
+            # HMC sampling: draw an approximate sample from the model
+            if doPCD == 0: # CD-1 (set negative data to current training samples)
+                hmc_step, hmc_ave_rej = draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis)
+            else: # PCD-1 (use previous negative data as starting point for chain)
+                negdataini = negdata
+                hmc_step, hmc_ave_rej = draw_HMC_samples(negdataini,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis)
+                
+            # compute derivatives at the negative samples
+            # normalize input data
+            torch.mul(negdata, negdata, out = t6) # DxP
+            torch.sum(t6, 0, out = lengthsq) # 1xP
+            torch.mul(lengthsq, 1./num_vis, out = lengthsq) # normalize by number of components (like std)
+            torch.add(lengthsq, small, out = lengthsq)
+            torch.sqrt(lengthsq, out = length)
+            torch.reciprocal(length, out = normcoeff) # 1xP
+            torch.mul(negdata, normcoeff, out = normdata) # normalized data 
+            
+            # covariance part
+            torch.matmul(VF.T, normdata, out = feat) # HxP 
+            torch.mul(feat, feat, out = featsq)   # HxP
+            torch.matmul(FH.T,featsq, out = t1) # OxP
+            torch.mul(t1, -0.5, out = t1)
+            torch.add(t1, bias_cov, out = t1) # OxP
+            torch.sigmoid(t1, out = t2) # OxP
+            torch.sub(FHinc, torch.matmul(featsq, t2.T), out = FHinc) # HxO #check
+            FHinc.mult(0.5)
+            cmt.dot(FH,t2, target = t3) # HxP
+            t3.mult(feat)
+            VFinc.subtract_dot(normdata, t3.T) # VxH
+            bias_covinc.add_sums(t2, axis = 1)
         
 if __name__ == "__main__":
     
