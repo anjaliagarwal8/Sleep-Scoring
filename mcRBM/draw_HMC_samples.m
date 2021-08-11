@@ -38,14 +38,8 @@ function [hmc_step, hmc_ave_rej,negdata] = draw_HMC_samples(data,VF,FH,hb_cov,vb
     t4 = t4 +  1;
     t5 = sum(t4,2);
     rej = t5(1,1)/batch_size;
-    t6  = zeros(num_vis,batch_size);
-    for i=1:size(t6,1)
-            t6(i,:) = data(i,:) .* t4; % Multiply by row
-    end
-    t7  = zeros(num_vis,batch_size);
-    for i=1:size(t7,1)
-            t7(i,:) = negdata(i,:) .* t4; % Multiply by row
-    end
+    t6  = data .* t4;
+    t7  = negdata .* t4;
     negdata = negdata - t7 + t6;
     hmc_ave_rej = 0.9*hmc_ave_rej + 0.1*rej;
     if hmc_ave_rej < hmc_target_ave_rej

@@ -8,10 +8,7 @@ function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,
     lengthsq = lengthsq./num_vis + small;
     len = sqrt(lengthsq);
     normcoeff = 1./len;
-    normdata  = zeros(size(data));
-    for i=1:size(normdata,1)
-            normdata(i,:) = data(i,:) .* normcoeff; % Multiply by row
-    end
+    normdata  = data .* normcoeff;
     
     % Covariance contribution
     feat   = dot(VF',normdata);
@@ -25,10 +22,7 @@ function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,
     energy = energy + sum(feat_mean);
     
     % Visible term
-    t6 = zeros(size(data));
-    for i=1:size(t6,2)
-            t6(:,i) = data(:,i) .* vb; % Multiply by column
-    end
+    t6 = data .* vb;
     t6 = t6 .* (-1);
     energy = energy + sum(t6);
     

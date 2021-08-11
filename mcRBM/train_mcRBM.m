@@ -32,10 +32,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             lengthsq = sum(t6)./num_vis + small;
             len = sqrt(lengthsq);
             normcoeff = 1./len;
-            normdata  = zeros(size(data));
-            for i=1:size(normdata,1)
-                normdata(i,:) = data(i,:) .* normcoeff; % Multiply by row
-            end
+            normdata  = data .* normcoeff;
             
             %% compute positive sample derivatives
             % Covariance part
@@ -70,10 +67,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             lengthsq = sum(t6)./num_vis + small;
             len = sqrt(lengthsq);
             normcoeff = 1./len;
-            normdata  = zeros(size(negdata));
-            for i=1:size(normdata,1)
-                normdata(i,:) = negdata(i,:) .* normcoeff; % Multiply by row
-            end
+            normdata  = negdata .* normcoeff;
             
             % covariance part
             feat = dot(VF',normdata);
@@ -104,9 +98,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             t5 = sum(t10,2);
             normVF = .95*normVF + (.05/num_fac) * t5(1,1);
             t10 = 1/t10;
-            for i=1:size(VF,1)
-                VF(i,:) = VF(i,:) .* t10; % Multiply by row
-            end
+            VF = VF .* t10; 
             VF = VF .* normVF;
             hb_cov = hb_cov + bias_covinv .* ( -epsilonbc/batch_size);
             vb = vb + bias_visinc .* ( -epsilonbc/batch_size);
@@ -122,9 +114,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
                 end
                 % normalize columns of FH
                 t11 = 1/sum(FH);
-                for i=1:size(FH,1)
-                    FH(i,:) = FH(i,:) .* t11; % Multiply by row
-                end
+                FH = FH .* t11;
             end
             W_meaninc = W_meaninc + sign(W) .* weightcost;
             W = W + W_meaninc .* (-epsilonw_meanc/batch_size);
