@@ -191,12 +191,57 @@ def train_mcRBM():
             torch.mul(t1, -0.5, out = t1)
             torch.add(t1, bias_cov, out = t1) # OxP
             torch.sigmoid(t1, out = t2) # OxP
-            torch.sub(FHinc, torch.matmul(featsq, t2.T), out = FHinc) # HxO #check
-            FHinc.mult(0.5)
-            cmt.dot(FH,t2, target = t3) # HxP
-            t3.mult(feat)
-            VFinc.subtract_dot(normdata, t3.T) # VxH
-            bias_covinc.add_sums(t2, axis = 1)
+            torch.sub(FHinc, torch.matmul(featsq, t2.T), out = FHinc) # HxO 
+            torch.mul(FHinc, 0.5, out = FHinc)
+            torch.matmul(FH,t2, out = t3) # HxP
+            torch.mul(t3, feat, out = t3)
+            torch.sub(VFinc, torch.matmul(normdata, t3.T), out = VFinc) # VxH
+            torch.add(bias_covinc, torch.sum(t2, 1), out = bias_covinc)
+            # visible bias
+            torch.add(bias_visinc, torch.sum(negdata, 1), out = bias_visinc)
+            # mean part
+            torch.matmul(w_mean.T, negdata, out = feat_mean) # HxP 
+            torch.add(feat_mean, bias_mean, out = feat_mean) # HxP
+            torch.sigmoid(feat_mean, out = feat_mean) # HxP
+            torch.add(w_meaninc, torch.matmul(negdata, feat_mean.T), out = w_meaninc)
+            torch.add(bias_meaninc, torch.sum(feat_mean, 1), out = bias_meaninc)
+            
+            # update parameters
+            torch.add(VFinc, torch.mul(torch.sign(VF), weightcost), out = VFinc) # L1 regularization
+            torch.add(VF, torch.mul(VFinc, -epsilonVFc/batch_size), out = VF)
+            # normalize columns of VF: normalize by running average of their norm 
+            torch.mul(VF, VF, out = t8)
+            torch.sum(t8, 0, out = t10)
+            torch.sqrt(t10)
+            torch.sum(t10, 1, out = t5)
+            t5 = t5.cpu().data.numpy()
+            normVF = .95*normVF + (.05/num_fac) * t5[0,0] # estimate norm
+            torch.reciprocal(t10, out = t10)
+            torch.mul(VF, t10, out = VF) 
+            torch.mul(VF, normVF, out = VF) 
+            torch.add(bias_cov, torch.mul(bias_covinc, -epsilonbc/batch_size), out = bias_cov)
+            torch.add(bias_vis, torch.mul(bias_visinc, -epsilonbc/batch_size), out = bias_vis)
+            
+            if epoch > startFH:
+                torch.add(FHinc, torch.mul(torch.sign(FH), weightcost), out = FHinc) # L1 regularization
+       		    torch.add(FH, torch.mul(FHinc, -epsilonFHc/batch_size), out = FH) # update
+	            # set to 0 negative entries in FH
+        	    torch.mul(torch.ge(FH, 0), 1., out = t9)
+	            torch.mul(FH, t9, out = FH)
+                if apply_mask==1:
+                    torch.mul(FH, mask, out = FH)
+		        # normalize columns of FH: L1 norm set to 1 in each column
+		        torch.sum(FH, 0, out = t11)               
+		        torch.reciprocal(t11, out = t11)
+		        torch.mul(FH, t11, out = FH) 
+            torch.add(w_meaninc, torch.mul(torch.sign(w_mean),weightcost), out = w_meaninc)
+            torch.add(w_mean, torch.mul(w_meaninc, -epsilonw_meanc/batch_size), out = w_mean)
+            torch.add(bias_mean, torch.mul(bias_meaninc, -epsilonb_meanc/batch_size), out = bias_mean)
+            
+            ## incomplete
+            
+            
+            
         
 if __name__ == "__main__":
     
