@@ -4,6 +4,54 @@ from ConfigParser import *
 import numpy as np
 import torch
 
+
+
+############################################################3
+# Hybrid Monte Carlo sampler
+def draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis):
+    torch.randn(vel.size(),out = vel)
+    negdata = torch.clone(data)
+    compute_energy_mcRBM(negdata,normdata,vel,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis)
+    compute_gradient_mcRBM(negdata,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis)
+    # half step
+    torch.add(vel,torch.mul(gradient, -0.5*hmc_step), out = vel)
+    torch.add(negdata, torch.mul(vel,hmc_step), out = negdata)
+    # full leap-frog steps
+    for ss in range(hmc_step_nr - 1):
+        ## re-evaluate the gradient
+        compute_gradient_mcRBM(negdata,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis)
+        # update variables
+        torch.add(vel, torch.mul(gradient, -hmc_step), out = vel)
+        torch.add(negdata, torch.mul(vel,hmc_step), out = negdata)
+    
+    # final half-step
+    compute_gradient_mcRBM(negdata,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis)
+    torch.add(vel, torch.mul(gradient, -0.5*hmc_step), out = vel)
+    # compute new energy
+    compute_energy_mcRBM(negdata,normdata,vel,new_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis)
+    # rejecton
+    torch.sub(old_energy, new_energy, out = thresh)
+    torch.exp(thresh, out = thresh)
+    t4.random_()
+    torch.mul(torch.le(t4,thresh), 1., out = t4)
+    #    update negdata and rejection rate
+    torch.mul(t4, -1, out = t4)
+    torch.add(t4, 1, out = t4) # now 1's detect rejections
+    torch.sum(t4, 1, out = t5)
+    t5.cpu().data.numpy()
+    rej = t5[0,0]/batch_size
+    torch.mul(data, t4, out = t6)
+    torch.mul(negdata, t4, out = t7)
+    torch.sub(negdata, t7, out = negdata)
+    torch.add(negdata, t6, out = negdata)
+    hmc_ave_rej = 0.9*hmc_ave_rej + 0.1*rej
+    if hmc_ave_rej < hmc_target_ave_rej:
+        hmc_step = min(hmc_step*1.01,0.25)
+    else:
+        hmc_step = max(hmc_step*0.99,.001)
+    return hmc_step, hmc_ave_rej
+ 
+    
 ######################################################
 # mcRBM trainer: sweeps over the training set.
 # For each batch of samples compute derivatives to update the parameters
@@ -171,7 +219,7 @@ def train_mcRBM():
             if doPCD == 0: # CD-1 (set negative data to current training samples)
                 hmc_step, hmc_ave_rej = draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis)
             else: # PCD-1 (use previous negative data as starting point for chain)
-                negdataini = negdata
+                negdataini = torch.clone(negdata)
                 hmc_step, hmc_ave_rej = draw_HMC_samples(negdataini,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis)
                 
             # compute derivatives at the negative samples
