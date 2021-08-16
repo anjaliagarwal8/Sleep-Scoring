@@ -4,8 +4,47 @@ from ConfigParser import *
 import numpy as np
 import torch
 
-
-
+#################################################################
+# compute the derivative if the free energy at a given input
+def compute_gradient_mcRBM(data,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis):
+    # normalize input data
+    torch.mul(data, data, out = t6) # DxP
+    torch.add(t6, 0, out = lengthsq) # 1xP
+    torch.mul(lengthsq, 1./num_vis, out = lengthsq) # normalize by number of components (like std)
+    torch.add(lengthsq, small, out = lengthsq) 
+    torch.sqrt(lengthsq, out = length)
+    torch.reciprocal(length, out = normcoeff) # 1xP
+    torch.mul(data, normcoeff, out = normdata)
+    torch.matmul(VF.T, normdata, out = feat)
+    torch.mul(feat, feat, out = featsq)
+    torch.matmul(FH.T, featsq, out = t1)
+    torch.mul(t1, -0.5, out = t1)
+    torch.add(t1, bias_cov, out = t1)
+    torch.sigmoid(t1, out = t2)
+    torch.matmul(FH, t2, out = t3)
+    torch.mul(t3, feat, out = t3)
+    torch.matmul(VF, t3, out = normgradient)
+    # final bprop through normalization
+    torch.mul(length, lengthsq, out = normcoeff)
+    torch.reciprocal(normcoeff, out = normcoeff)
+    torch.mul(normgradient, data, out = gradient)
+    torch.sum(gradient, 0, out = t4)
+    torch.mul(t4, -1./num_vis, out = t4)
+    torch.mul(data, t4, out = gradient)
+    torch.mul(normgradient, lengthsq, out = t6)
+    torch.add(gradient, t6, out = gradient)
+    torch.mul(gradient, normcoeff, out = gradient)
+    # add quadratic term gradient
+    torch.add(gradient, data, out = gradient)
+    # add visible bias term
+    torch.add(gradient, torch.mul(bias_vis, -1), out = gradient)
+    # add MEAN contribution to gradient
+    torch.matmul(w_mean.T, data, out = feat_mean)
+    torch.add(feat_mean, bias_mean, out = feat_mean)
+    torch.sigmoid(feat_mean, out = feat_mean)
+    torch.sub(gradient, torch.matmul(w_mean, feat_mean), out = gradient)
+    
+    
 ############################################################3
 # Hybrid Monte Carlo sampler
 def draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis):
