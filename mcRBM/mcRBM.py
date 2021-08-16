@@ -4,6 +4,52 @@ from ConfigParser import *
 import numpy as np
 import torch
 
+######################################################################
+# compute the value of the free energy at a given input
+# F = - sum log(1+exp(- .5 FH (VF data/norm(data))^2 + bias_cov)) +...
+#     - sum log(1+exp(w_mean data + bias_mean)) + ...
+#     - bias_vis data + 0.5 data^2
+# NOTE: FH is constrained to be positive 
+# (in the paper the sign is negative but the sign in front of it is also flipped)
+def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis):
+    # normalize input data vectors
+    torch.mul(data, data, out = t6)
+    torch.sum(t6, 0, out = lengthsq)
+    torch.mul(lengthsq, 0.5, out = energy)
+    torch.mul(lengthsq, 1./num_vis, out = lenghtsq)
+    torch.add(lengthsq, small, out = lengthsq)
+    torch.sqrt(lengthsq, out = length)
+    torch.reciprocal(length, out = normcoeff)
+    torch.mul(data, normcoeff, out = normdata)
+    ## potential
+    # covariance contribution
+    torch.matmul(VF.T, normdata, out = feat)
+    torch.mul(feat, feat, out = featsq)
+    torch.matmul(FH.T, featsq, out = t1)
+    torch.mul(t1, -0.5, out = t1)
+    torch.add(t1, bias_cov, out = t1)
+    torch.exp(t1, out = t1)
+    torch.add(t1, 1 out = t2)
+    torch.log(t2, out = t2)
+    torch.mul(t2, -1, out = t2)
+    torch.add(energy, torch.sum(t2, 0), out = energy)
+    # mean contribution
+    torch.matmul(w_mean.T, data, out = feat_mean)
+    torch.add(feat_mean, bias_mean, out = feat_mean)
+    torch.exp(feat_mean, out = feat_mean)
+    torch.add(feat_mean, 1, out = feat_mean)
+    torch.log(feat_mean, out = feat_mean)
+    torch.mul(feat_mean, -1, out = feat_mean)
+    torch.add(energy, torch.sum(feat_mean, 0), out = energy)
+    # visible bias term
+    torch.mul(data, bias_vis, out = t6)
+    torch.mul(t6, -1, out = t6)
+    torch.add(energy, torch.sum(t6, 0), out = energy)
+    # kinetic
+    torch.mul(vel, vel, out = t6)
+    torch.add(energy, torch.mul(torch.sum(t6, 0), 0.5), out = energy)
+    
+    
 #################################################################
 # compute the derivative if the free energy at a given input
 def compute_gradient_mcRBM(data,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis):
