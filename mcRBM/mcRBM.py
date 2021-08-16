@@ -29,7 +29,7 @@ def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean
     torch.mul(t1, -0.5, out = t1)
     torch.add(t1, bias_cov, out = t1)
     torch.exp(t1, out = t1)
-    torch.add(t1, 1 out = t2)
+    torch.add(t1, 1, out = t2)
     torch.log(t2, out = t2)
     torch.mul(t2, -1, out = t2)
     torch.add(energy, torch.sum(t2, 0), out = energy)
