@@ -1,8 +1,9 @@
 import sys
 from scipy.io import loadmat, savemat
-from ConfigParser import *
+import configparser 
 import numpy as np
 import torch
+import pylab
 
 ######################################################################
 # compute the value of the free energy at a given input
@@ -14,9 +15,9 @@ import torch
 def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis):
     # normalize input data vectors
     torch.mul(data, data, out = t6)
-    torch.sum(t6, 0, out = lengthsq)
+    torch.sum(t6, 0, keepdims = True,out = lengthsq)
     torch.mul(lengthsq, 0.5, out = energy)
-    torch.mul(lengthsq, 1./num_vis, out = lenghtsq)
+    torch.mul(lengthsq, 1./num_vis, out = lengthsq)
     torch.add(lengthsq, small, out = lengthsq)
     torch.sqrt(lengthsq, out = length)
     torch.reciprocal(length, out = normcoeff)
@@ -32,7 +33,7 @@ def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean
     torch.add(t1, 1, out = t2)
     torch.log(t2, out = t2)
     torch.mul(t2, -1, out = t2)
-    torch.add(energy, torch.sum(t2, 0), out = energy)
+    torch.add(energy, torch.sum(t2, 0,keepdims = True), out = energy)
     # mean contribution
     torch.matmul(w_mean.T, data, out = feat_mean)
     torch.add(feat_mean, bias_mean, out = feat_mean)
@@ -40,14 +41,14 @@ def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean
     torch.add(feat_mean, 1, out = feat_mean)
     torch.log(feat_mean, out = feat_mean)
     torch.mul(feat_mean, -1, out = feat_mean)
-    torch.add(energy, torch.sum(feat_mean, 0), out = energy)
+    torch.add(energy, torch.sum(feat_mean, 0,keepdims = True), out = energy)
     # visible bias term
     torch.mul(data, bias_vis, out = t6)
     torch.mul(t6, -1, out = t6)
-    torch.add(energy, torch.sum(t6, 0), out = energy)
+    torch.add(energy, torch.sum(t6, 0,keepdims = True), out = energy)
     # kinetic
     torch.mul(vel, vel, out = t6)
-    torch.add(energy, torch.mul(torch.sum(t6, 0), 0.5), out = energy)
+    torch.add(energy, torch.mul(torch.sum(t6, 0,keepdims = True), 0.5), out = energy)
     
     
 #################################################################
@@ -74,7 +75,7 @@ def compute_gradient_mcRBM(data,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mea
     torch.mul(length, lengthsq, out = normcoeff)
     torch.reciprocal(normcoeff, out = normcoeff)
     torch.mul(normgradient, data, out = gradient)
-    torch.sum(gradient, 0, out = t4)
+    torch.sum(gradient, 0, keepdims = True,out = t4)
     torch.mul(t4, -1./num_vis, out = t4)
     torch.mul(data, t4, out = gradient)
     torch.mul(normgradient, lengthsq, out = t6)
@@ -122,8 +123,8 @@ def draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,
     #    update negdata and rejection rate
     torch.mul(t4, -1, out = t4)
     torch.add(t4, 1, out = t4) # now 1's detect rejections
-    torch.sum(t4, 1, out = t5)
-    t5.cpu().data.numpy()
+    torch.sum(t4, 1, keepdims = True,out = t5)
+    #t5.cpu().data.numpy()
     rej = t5[0,0]/batch_size
     torch.mul(data, t4, out = t6)
     torch.mul(negdata, t4, out = t7)
@@ -143,7 +144,7 @@ def draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,
 # at the training samples and at the negative samples drawn calling HMC sampler.
 def train_mcRBM():
     
-    config = ConfigParser()
+    config = configparser.ConfigParser()
     config.read('input_configuration')
 
     verbose = config.getint('VERBOSITY','verbose')
@@ -164,7 +165,7 @@ def train_mcRBM():
     data_file_name =  config.get('DATA','data_file_name')
     d = loadmat(data_file_name) # input in the format PxD (P vectorized samples with D dimensions)
     totnumcases = d["whitendata"].shape[0]
-    d = d["whitendata"][0:floor(totnumcases/batch_size)*batch_size,:].copy() 
+    d = d["whitendata"][0:int(pylab.floor(totnumcases/batch_size))*batch_size,:].copy() 
     totnumcases = d.shape[0]
     num_vis =  d.shape[1]
     num_batches = int(totnumcases/batch_size)
@@ -263,7 +264,7 @@ def train_mcRBM():
         for batch in range(num_batches):
 
             # get current minibatch
-            data = dev_dat.narrow(1,batch*batch_size,(batch + 1)*batch_size) # DxP (nr dims x nr samples)
+            data = dev_dat[:,batch*batch_size:(batch + 1)*batch_size] # DxP (nr dims x nr samples)
             
             # normalize input data
             torch.mul(data, data, out = t6) # DxP
@@ -298,7 +299,7 @@ def train_mcRBM():
             torch.sigmoid(feat_mean, out = feat_mean) # HxP
             torch.mul(feat_mean, -1, out = feat_mean)
             torch.matmul(data, feat_mean.T, out = w_meaninc)
-            torch.sum(feat_mean, 1, out = bias_meaninc)
+            torch.sum(feat_mean, 1, keepdims = True,out = bias_meaninc)
             
             # HMC sampling: draw an approximate sample from the model
             if doPCD == 0: # CD-1 (set negative data to current training samples)
@@ -306,11 +307,11 @@ def train_mcRBM():
             else: # PCD-1 (use previous negative data as starting point for chain)
                 negdataini = torch.clone(negdata)
                 hmc_step, hmc_ave_rej = draw_HMC_samples(negdataini,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis)
-                
+             
             # compute derivatives at the negative samples
             # normalize input data
             torch.mul(negdata, negdata, out = t6) # DxP
-            torch.sum(t6, 0, out = lengthsq) # 1xP
+            torch.sum(t6, 0, keepdims = True,out = lengthsq) # 1xP
             torch.mul(lengthsq, 1./num_vis, out = lengthsq) # normalize by number of components (like std)
             torch.add(lengthsq, small, out = lengthsq)
             torch.sqrt(lengthsq, out = length)
@@ -329,25 +330,25 @@ def train_mcRBM():
             torch.matmul(FH,t2, out = t3) # HxP
             torch.mul(t3, feat, out = t3)
             torch.sub(VFinc, torch.matmul(normdata, t3.T), out = VFinc) # VxH
-            torch.add(bias_covinc, torch.sum(t2, 1), out = bias_covinc)
+            torch.add(bias_covinc, torch.sum(t2, 1,keepdims = True), out = bias_covinc)
             # visible bias
-            torch.add(bias_visinc, torch.sum(negdata, 1), out = bias_visinc)
+            torch.add(bias_visinc, torch.sum(negdata, 1,keepdims = True), out = bias_visinc)
             # mean part
             torch.matmul(w_mean.T, negdata, out = feat_mean) # HxP 
             torch.add(feat_mean, bias_mean, out = feat_mean) # HxP
             torch.sigmoid(feat_mean, out = feat_mean) # HxP
             torch.add(w_meaninc, torch.matmul(negdata, feat_mean.T), out = w_meaninc)
-            torch.add(bias_meaninc, torch.sum(feat_mean, 1), out = bias_meaninc)
+            torch.add(bias_meaninc, torch.sum(feat_mean, 1,keepdims = True), out = bias_meaninc)
             
             # update parameters
             torch.add(VFinc, torch.mul(torch.sign(VF), weightcost), out = VFinc) # L1 regularization
             torch.add(VF, torch.mul(VFinc, -epsilonVFc/batch_size), out = VF)
             # normalize columns of VF: normalize by running average of their norm 
             torch.mul(VF, VF, out = t8)
-            torch.sum(t8, 0, out = t10)
+            torch.sum(t8, 0, keepdims = True,out = t10)
             torch.sqrt(t10)
-            torch.sum(t10, 1, out = t5)
-            t5 = t5.cpu().data.numpy()
+            torch.sum(t10, 1, keepdims = True,out = t5)
+            #t5 = t5.cpu().data.numpy()
             normVF = .95*normVF + (.05/num_fac) * t5[0,0] # estimate norm
             torch.reciprocal(t10, out = t10)
             torch.mul(VF, t10, out = VF) 
@@ -356,17 +357,20 @@ def train_mcRBM():
             torch.add(bias_vis, torch.mul(bias_visinc, -epsilonbc/batch_size), out = bias_vis)
             
             if epoch > startFH:
+                
                 torch.add(FHinc, torch.mul(torch.sign(FH), weightcost), out = FHinc) # L1 regularization
-       		    torch.add(FH, torch.mul(FHinc, -epsilonFHc/batch_size), out = FH) # update
-	            # set to 0 negative entries in FH
-        	    torch.mul(torch.ge(FH, 0), 1., out = t9)
-	            torch.mul(FH, t9, out = FH)
+                torch.add(FH, torch.mul(FHinc, -epsilonFHc/batch_size), out = FH)
+                # set to 0 negative entries in FH
+                torch.mul(torch.ge(FH, 0), 1., out = t9)
+                torch.mul(FH, t9, out = FH)
                 if apply_mask==1:
                     torch.mul(FH, mask, out = FH)
+    
 		        # normalize columns of FH: L1 norm set to 1 in each column
-		        torch.sum(FH, 0, out = t11)               
-		        torch.reciprocal(t11, out = t11)
-		        torch.mul(FH, t11, out = FH) 
+                torch.sum(FH, 0, keepdims = True,out = t11)
+                torch.reciprocal(t11, out = t11)
+                torch.mul(FH, t11, out = FH) 
+		       
             torch.add(w_meaninc, torch.mul(torch.sign(w_mean),weightcost), out = w_meaninc)
             torch.add(w_mean, torch.mul(w_meaninc, -epsilonw_meanc/batch_size), out = w_mean)
             torch.add(bias_mean, torch.mul(bias_meaninc, -epsilonb_meanc/batch_size), out = bias_mean)
