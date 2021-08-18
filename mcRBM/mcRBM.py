@@ -4,6 +4,7 @@ import configparser
 import numpy as np
 import torch
 import pylab
+import matplotlib.pyplot as plt
 
 ######################################################################
 # compute the value of the free energy at a given input
@@ -12,7 +13,7 @@ import pylab
 #     - bias_vis data + 0.5 data^2
 # NOTE: FH is constrained to be positive 
 # (in the paper the sign is negative but the sign in front of it is also flipped)
-def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis):
+def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis,store):
     # normalize input data vectors
     torch.mul(data, data, out = t6)
     torch.sum(t6, 0, keepdims = True,out = lengthsq)
@@ -46,9 +47,14 @@ def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean
     torch.mul(data, bias_vis, out = t6)
     torch.mul(t6, -1, out = t6)
     torch.add(energy, torch.sum(t6, 0,keepdims = True), out = energy)
-    # kinetic
-    torch.mul(vel, vel, out = t6)
-    torch.add(energy, torch.mul(torch.sum(t6, 0,keepdims = True), 0.5), out = energy)
+    if store == False:
+        # kinetic
+        torch.mul(vel, vel, out = t6)
+        torch.add(energy, torch.mul(torch.sum(t6, 0,keepdims = True), 0.5), out = energy)
+    else:
+        # kinetic
+        torch.mul(data,data, out = t6)
+        torch.add(energy, torch.mul(torch.sum(t6, 0, keepdims = True), 0.5), out = energy)
     
     
 #################################################################
@@ -97,7 +103,7 @@ def compute_gradient_mcRBM(data,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mea
 def draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,t1,t2,t3,t4,t5,t6,t7,thresh,feat,featsq,batch_size,feat_mean,length,lengthsq,normcoeff,small,num_vis):
     torch.randn(vel.size(),out = vel)
     negdata = torch.clone(data)
-    compute_energy_mcRBM(negdata,normdata,vel,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis)
+    compute_energy_mcRBM(negdata,normdata,vel,old_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis,False)
     compute_gradient_mcRBM(negdata,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis)
     # half step
     torch.add(vel,torch.mul(gradient, -0.5*hmc_step), out = vel)
@@ -114,7 +120,7 @@ def draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,
     compute_gradient_mcRBM(negdata,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis)
     torch.add(vel, torch.mul(gradient, -0.5*hmc_step), out = vel)
     # compute new energy
-    compute_energy_mcRBM(negdata,normdata,vel,new_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis)
+    compute_energy_mcRBM(negdata,normdata,vel,new_energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis,False)
     # rejecton
     torch.sub(old_energy, new_energy, out = thresh)
     torch.exp(thresh, out = thresh)
@@ -186,6 +192,9 @@ def train_mcRBM():
     hmc_target_ave_rej =  config.getfloat('HMC_PARAMETERS','hmc_target_ave_rej')
     hmc_ave_rej =  hmc_target_ave_rej
     
+    f1 = plt.figure()
+    ax1 = f1.add_subplot(111)
+        
     # initialize weights
     VF = torch.tensor(np.array(0.02 * np.random.randn(num_vis, num_fac), dtype=np.float32, order='F')) # VxH
     if apply_mask == 0:
@@ -215,6 +224,7 @@ def train_mcRBM():
     negdata = torch.tensor( np.array(np.random.randn(num_vis, batch_size), dtype=np.float32, order='F'))
     old_energy = torch.tensor( np.array(np.zeros((1, batch_size)), dtype=np.float32, order='F'))
     new_energy = torch.tensor( np.array(np.zeros((1, batch_size)), dtype=np.float32, order='F'))
+    energy = torch.tensor( np.array(np.zeros((1, batch_size)), dtype=np.float32, order='F'))
     gradient = torch.tensor( np.array(np.empty((num_vis, batch_size)), dtype=np.float32, order='F')) # VxP
     normgradient = torch.tensor( np.array(np.empty((num_vis, batch_size)), dtype=np.float32, order='F')) # VxP
     thresh = torch.tensor( np.array(np.zeros((1, batch_size)), dtype=np.float32, order='F'))
@@ -242,6 +252,10 @@ def train_mcRBM():
     t10 = torch.tensor( np.array(np.empty((1,num_fac)), dtype=np.float32, order='F'))
     t11 = torch.tensor( np.array(np.empty((1,num_hid_cov)), dtype=np.float32, order='F'))
     
+    meanEnergy = np.zeros(num_epochs)
+    minEnergy = np.zeros(num_epochs)
+    maxEnergy = np.zeros(num_epochs)
+    
     
     # start training
     for epoch in range(num_epochs):
@@ -249,13 +263,21 @@ def train_mcRBM():
         print("Epoch " + str(epoch + 1))
         
         # anneal learning rates
-        epsilonVFc    = epsilonVF/max(1,epoch/20)
-        epsilonFHc    = epsilonFH/max(1,epoch/20)
-        epsilonbc    = epsilonb/max(1,epoch/20)
-        epsilonw_meanc = epsilonw_mean/max(1,epoch/20)
-        epsilonb_meanc = epsilonb_mean/max(1,epoch/20)
-        weightcost = weightcost_final
+#        epsilonVFc    = epsilonVF/max(1,epoch/20)
+#        epsilonFHc    = epsilonFH/max(1,epoch/20)
+#        epsilonbc    = epsilonb/max(1,epoch/20)
+#        epsilonw_meanc = epsilonw_mean/max(1,epoch/20)
+#        epsilonb_meanc = epsilonb_mean/max(1,epoch/20)
+#        weightcost = weightcost_final
         
+        # no annealing is used because learning
+        # was stopping too early
+        epsilonVFc = epsilonVF
+        epsilonFHc = epsilonFH
+        epsilonbc = epsilonb
+        epsilonw_meanc = epsilonw_mean
+        epsilonb_meanc = epsilonb_mean
+            
         if epoch <= startFH:
             epsilonFHc = 0 
         if epoch <= startwd:	
@@ -379,6 +401,17 @@ def train_mcRBM():
                 print("VF: " + '%3.2e' % VF.euclid_norm() + ", DVF: " + '%3.2e' % (VFinc.euclid_norm()*(epsilonVFc/batch_size)) + ", FH: " + '%3.2e' % FH.euclid_norm() + ", DFH: " + '%3.2e' % (FHinc.euclid_norm()*(epsilonFHc/batch_size)) + ", bias_cov: " + '%3.2e' % bias_cov.euclid_norm() + ", Dbias_cov: " + '%3.2e' % (bias_covinc.euclid_norm()*(epsilonbc/batch_size)) + ", bias_vis: " + '%3.2e' % bias_vis.euclid_norm() + ", Dbias_vis: " + '%3.2e' % (bias_visinc.euclid_norm()*(epsilonbc/batch_size)) + ", wm: " + '%3.2e' % w_mean.euclid_norm() + ", Dwm: " + '%3.2e' % (w_meaninc.euclid_norm()*(epsilonw_meanc/batch_size)) + ", bm: " + '%3.2e' % bias_mean.euclid_norm() + ", Dbm: " + '%3.2e' % (bias_meaninc.euclid_norm()*(epsilonb_meanc/batch_size)) + ", step: " + '%3.2e' % hmc_step  +  ", rej: " + '%3.2e' % hmc_ave_rej) 
                 sys.stdout.flush()
             
+            compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis,True)
+#            energy.copy_to_host()
+            meanEnergy[epoch] = np.mean(energy.cpu().data.numpy())
+            minEnergy[epoch] = np.min(energy.cpu().data.numpy())
+            maxEnergy[epoch] = np.max(energy.cpu().data.numpy())
+            
+            ax1.cla()
+            ax1.plot(range(epoch), meanEnergy[0:epoch])
+            ax1.plot(range(epoch), maxEnergy[0:epoch])
+            ax1.plot(range(epoch), minEnergy[0:epoch])
+            
         # back-up every once in a while 
         if np.mod(epoch,10) == 0:
 #            VF.copy_to_host()
@@ -396,12 +429,9 @@ def train_mcRBM():
 #    w_mean.copy_to_host()
 #    bias_mean.copy_to_host()
     savemat("ws_fac" + str(num_fac) + "_cov" + str(num_hid_cov) + "_mean" + str(num_hid_mean), {'VF':VF.cpu().data.numpy(),'FH':FH.cpu().data.numpy(),'bias_cov': bias_cov.cpu().data.numpy(), 'bias_vis': bias_vis.cpu().data.numpy(), 'w_mean': w_mean.cpu().data.numpy(), 'bias_mean': bias_mean.cpu().data.numpy(), 'epoch':epoch})
-
-
-            
-            
-            
+    savemat("training_energy_" + str(num_fac) + "_cov" + str(num_hid_cov) + "_mean" + str(num_hid_mean), {'meanEnergy':meanEnergy, 'maxEnergy': maxEnergy, 'minEnergy': minEnergy, 'epoch':epoch})
         
+ 
 if __name__ == "__main__":
     
     train_mcRBM()
