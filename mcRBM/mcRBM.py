@@ -375,7 +375,29 @@ def train_mcRBM():
             torch.add(w_mean, torch.mul(w_meaninc, -epsilonw_meanc/batch_size), out = w_mean)
             torch.add(bias_mean, torch.mul(bias_meaninc, -epsilonb_meanc/batch_size), out = bias_mean)
             
-            ## incomplete
+            if verbose == 1:
+                print("VF: " + '%3.2e' % VF.euclid_norm() + ", DVF: " + '%3.2e' % (VFinc.euclid_norm()*(epsilonVFc/batch_size)) + ", FH: " + '%3.2e' % FH.euclid_norm() + ", DFH: " + '%3.2e' % (FHinc.euclid_norm()*(epsilonFHc/batch_size)) + ", bias_cov: " + '%3.2e' % bias_cov.euclid_norm() + ", Dbias_cov: " + '%3.2e' % (bias_covinc.euclid_norm()*(epsilonbc/batch_size)) + ", bias_vis: " + '%3.2e' % bias_vis.euclid_norm() + ", Dbias_vis: " + '%3.2e' % (bias_visinc.euclid_norm()*(epsilonbc/batch_size)) + ", wm: " + '%3.2e' % w_mean.euclid_norm() + ", Dwm: " + '%3.2e' % (w_meaninc.euclid_norm()*(epsilonw_meanc/batch_size)) + ", bm: " + '%3.2e' % bias_mean.euclid_norm() + ", Dbm: " + '%3.2e' % (bias_meaninc.euclid_norm()*(epsilonb_meanc/batch_size)) + ", step: " + '%3.2e' % hmc_step  +  ", rej: " + '%3.2e' % hmc_ave_rej) 
+                sys.stdout.flush()
+            
+        # back-up every once in a while 
+        if np.mod(epoch,10) == 0:
+#            VF.copy_to_host()
+#            FH.copy_to_host()
+#            bias_cov.copy_to_host()
+#            w_mean.copy_to_host()
+#            bias_mean.copy_to_host()
+#            bias_vis.copy_to_host()
+            savemat("ws_temp", {'VF':VF.cpu().data.numpy(),'FH':FH.cpu().data.numpy(),'bias_cov': bias_cov.cpu().data.numpy(), 'bias_vis': bias_vis.cpu().data.numpy(),'w_mean': w_mean.cpu().data.numpy(), 'bias_mean': bias_mean.cpu().data.numpy(), 'epoch':epoch})    
+    # final back-up
+#    VF.copy_to_host()
+#    FH.copy_to_host()
+#    bias_cov.copy_to_host()
+#    bias_vis.copy_to_host()
+#    w_mean.copy_to_host()
+#    bias_mean.copy_to_host()
+    savemat("ws_fac" + str(num_fac) + "_cov" + str(num_hid_cov) + "_mean" + str(num_hid_mean), {'VF':VF.cpu().data.numpy(),'FH':FH.cpu().data.numpy(),'bias_cov': bias_cov.cpu().data.numpy(), 'bias_vis': bias_vis.cpu().data.numpy(), 'w_mean': w_mean.cpu().data.numpy(), 'bias_mean': bias_mean.cpu().data.numpy(), 'epoch':epoch})
+
+
             
             
             
