@@ -1,4 +1,4 @@
-function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,n_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final)
+function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final)
 %%
 
 
@@ -6,7 +6,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
     normVF = 1;
     negdata = randn(num_vis,batch_size);
    
-    for t=1:n_epochs
+    for t=1:num_epochs
         % Anneal learning rates
         epsilonVFc    = epsilonVF/max(1,t/20);
         epsilonFHc    = epsilonFH/max(1,t/20);
@@ -100,7 +100,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             t10 = 1/t10;
             VF = VF .* t10; 
             VF = VF .* normVF;
-            hb_cov = hb_cov + bias_covinv .* ( -epsilonbc/batch_size);
+            hb_cov = hb_cov + bias_covinc .* ( -epsilonbc/batch_size);
             vb = vb + bias_visinc .* ( -epsilonbc/batch_size);
             
             if t>startFH
@@ -121,7 +121,8 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             hb_mean = hb_mean + bias_meaninc .* (-epsilonb_meanc/batch_size);
             
             % Display the parameters
-            
+            %disp("VF: " + '%3.2e' % VF.euclid_norm() + ", DVF: " + '%3.2e' % (VFinc.euclid_norm()*(epsilonVFc/batch_size)) + ", FH: " + '%3.2e' % FH.euclid_norm() + ", DFH: " + '%3.2e' % (FHinc.euclid_norm()*(epsilonFHc/batch_size)) + ", bias_cov: " + '%3.2e' % bias_cov.euclid_norm() + ", Dbias_cov: " + '%3.2e' % (bias_covinc.euclid_norm()*(epsilonbc/batch_size)) + ", bias_vis: " + '%3.2e' % bias_vis.euclid_norm() + ", Dbias_vis: " + '%3.2e' % (bias_visinc.euclid_norm()*(epsilonbc/batch_size)) + ", wm: " + '%3.2e' % w_mean.euclid_norm() + ", Dwm: " + '%3.2e' % (w_meaninc.euclid_norm()*(epsilonw_meanc/batch_size)) + ", bm: " + '%3.2e' % bias_mean.euclid_norm() + ", Dbm: " + '%3.2e' % (bias_meaninc.euclid_norm()*(epsilonb_meanc/batch_size)) + ", step: " + '%3.2e' % hmc_step  +  ", rej: " + '%3.2e' % hmc_ave_rej 
+      
         end
     end
 end
