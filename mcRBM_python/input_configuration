@@ -43,4 +43,4 @@ hmc_target_ave_rej = 0.1
 
 [VERBOSITY]
 # if this is one, the program will print the norm of filters and gradients on screen
-verbose = 0
+verbose = 1
