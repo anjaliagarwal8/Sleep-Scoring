@@ -1,6 +1,6 @@
-function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,small,store)
+function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,store)
     
-    num_vis = length(vb);
+    
     % normalize the data
     t6 = data .* data;
     lengthsq = sum(t6);
@@ -11,14 +11,14 @@ function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,
     normdata  = data .* normcoeff;
     
     % Covariance contribution
-    feat   = dot(VF',normdata);
+    feat   = VF'*normdata;
     featsq = feat .* feat;
-    t1 = exp(dot(FH',featsq) .* (-0.5) + hb_cov);
+    t1 = exp(FH'*featsq .* (-0.5) + hb_cov);
     t2 = -log(t1 + 1);
     energy = energy + sum(t2);
     
     % Mean contribution
-    feat_mean = -log(exp(dot(W',data) + hb_mean) + 1);
+    feat_mean = -log(exp(W'*data + hb_mean) + 1);
     energy = energy + sum(feat_mean);
     
     % Visible term
@@ -29,10 +29,10 @@ function [energy,vel] = compute_energy_mcRBM(data,vel,VF,FH,hb_cov,vb,W,hb_mean,
     if store == false
         % kinetic
         t6 = vel.*vel;
-   
     else
         % kinetic
         t6 = data .* data;
-        energy = energy + sum(t6).*0.5;
-    
+    end
+    energy = energy + sum(t6).*0.5;
+    size(energy)
 end
