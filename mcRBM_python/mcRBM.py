@@ -50,11 +50,11 @@ def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean
     if store == False:
         # kinetic
         torch.mul(vel, vel, out = t6)
-        torch.add(energy, torch.mul(torch.sum(t6, 0,keepdims = True), 0.5), out = energy)
     else:
         # kinetic
         torch.mul(data,data, out = t6)
-        torch.add(energy, torch.mul(torch.sum(t6, 0, keepdims = True), 0.5), out = energy)
+        
+    torch.add(energy, torch.mul(torch.sum(t6, 0, keepdims = True), 0.5), out = energy)
     
     
 #################################################################
