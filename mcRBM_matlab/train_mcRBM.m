@@ -28,7 +28,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
         for batch=1:num_batches
             
             % get current minibatch
-            data = X(batch*batch_size,(batch+1)*batch_size);
+            data = X(:,batch*batch_size:(batch+1)*batch_size);
             
             % Normalize the data
             t6 = data .* data;
@@ -39,21 +39,21 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             
             %% compute positive sample derivatives
             % Covariance part
-            feat   = dot(VF',normdata);
+            feat   = VF'*normdata;
             featsq = feat .* feat;
-            t1 = dot(FH',featsq) .* (-0.5) + hb_cov;
+            t1 = FH'*featsq .* (-0.5) + hb_cov;
             t2     = sigmoid(t1);
-            FHinc  = dot(featsq,t2');
-            t3     = dot(FH,t2) .* feat;
-            VFinc  = dot(normdata,t3');
+            FHinc  = featsq*t2';
+            t3     = FH*t2 .* feat;
+            VFinc  = normdata*t3';
             bias_covinc = sum(t2,2) .* (-1);
 
             % Visible bias
             bias_visinc = sum(data,2) .* (-1);
 
             % Mean part
-            feat_mean = sigmoid(dot(W',data) + hb_mean) .* (-1);
-            W_meaninc = dot(data,feat_mean');
+            feat_mean = sigmoid(W'*data + hb_mean) .* (-1);
+            W_meaninc = data*feat_mean';
             bias_meaninc = sum(feat_mean,2);
             
             % HMC sampling: draw an approximate sample from the model
@@ -73,23 +73,23 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             normdata  = negdata .* normcoeff;
             
             % covariance part
-            feat = dot(VF',normdata);
+            feat = VF'*normdata;
             featsq = feat .* feat;
-            t1 = dot(FH',featsq) .* (-0.5);
+            t1 = FH'*featsq .* (-0.5);
             t1 = t1 + hb_cov;
             t2 = sigmoid(t1);
             FHinc = FHinc - dot(featsq,t2');
             FHinc = FHinc .* 0.5;
-            t3 = dot(FH,t2) .* feat;
-            VFinc = VFinc - dot(normdata,t3');
+            t3 = FH*t2 .* feat;
+            VFinc = VFinc - normdata*t3';
             bias_covinc = bias_covinc + sum(t2,2);
             
             % visible bias
             bias_visinc = bias_visinc + sum(negdata,2);
             
             % mean part
-            feat_mean = sigmoid(dot(W',negdata) + hb_mean);
-            W_meaninc = W_meaninc + dot(negdata,feat_mean');
+            feat_mean = sigmoid(W'*negdata + hb_mean);
+            W_meaninc = W_meaninc + negdata*feat_mean';
             bias_meaninc = bias_meaninc + sum(feat_mean,2);
             
             % update parameters
