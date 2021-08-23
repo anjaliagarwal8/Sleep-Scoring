@@ -5,7 +5,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
     small = 0.5;
     normVF = 1;
     negdata = randn(num_vis,batch_size);
-   
+    min
     for t=1:num_epochs
         % Anneal learning rates
         epsilonVFc    = epsilonVF/max(1,t/20);
@@ -130,11 +130,14 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             fprintf('bias_vis: %3.2e \n' , norm(vb)); 
             fprintf('Dbias_vis: %3.2e \n',norm(bias_visinc)*(epsilonbc/batch_size));  
             fprintf('wm: %3.2e \n',norm(W)); 
-            fprintf('Dwm: " + '%3.2e' % (w_meaninc.euclid_norm()*(epsilonw_meanc/batch_size)) + 
-            fprintf('bm: " + '%3.2e' % bias_mean.euclid_norm() + 
-            fprintf('Dbm: " + '%3.2e' % (bias_meaninc.euclid_norm()*(epsilonb_meanc/batch_size)) + 
-            fprintf('step: " + '%3.2e' % hmc_step  +  
-            fprintf('rej: " + '%3.2e' % hmc_ave_rej 
+            fprintf('Dwm: %3.2e \n',norm(W)*(epsilonw_meanc/batch_size));
+            fprintf('bm: %3.2e \n', norm(hb_mean)); 
+            fprintf('Dbm: %3.2e \n',norm(bias_meaninc)*(epsilonb_meanc/batch_size)); 
+            fprintf('step: %3.2e \n', hmc_step);  
+            fprintf('rej: %3.2e \n', hmc_ave_rej);
+            
+            %Computing the energy
+            
      
         end
     end
