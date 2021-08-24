@@ -10,6 +10,7 @@ data = load('training_colorpatches_16x16_demo.mat');
 load input_configuration
 totnumcases = size(data.whitendata,1);
 data = data.whitendata(1:floor(totnumcases/batch_size)*batch_size,:);
+totnumcases = size(data,1);
 
 num_vis =  size(data,2);
         
@@ -32,5 +33,5 @@ hmc_ave_rej =  hmc_target_ave_rej;
 
 %% Training the RBM with the data and extracting updated weights and biases  
 data = data';
-[W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final);
+[W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final,apply_mask);
 

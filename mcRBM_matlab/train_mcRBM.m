@@ -1,4 +1,4 @@
-function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final)
+function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final,apply_mask)
 %%
 
 
@@ -25,7 +25,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             weightcost = 0;
         end
         
-        for batch=1:num_batches
+        for batch=1:num_batches-1
             
             % get current minibatch
             data = X(:,batch*batch_size:(batch+1)*batch_size);
@@ -58,10 +58,10 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             
             % HMC sampling: draw an approximate sample from the model
             if doPCD == 0 %  CD-1 (set negative data to current training samples)
-                hmc_step, hmc_ave_rej,negdata = draw_HMC_samples(data,VF,FH,hb_cov,vb,W,hb_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,batch_size,small,num_vis);
+                [hmc_step, hmc_ave_rej,negdata] = draw_HMC_samples(data,VF,FH,hb_cov,vb,W,hb_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,batch_size,small,num_vis);
             else % PCD-1 (use previous negative data as starting point for chain)
                 negdataini = negdata;
-                hmc_step, hmc_ave_rej,negdata = draw_HMC_samples(negdataini,VF,FH,hb_cov,vb,W,hb_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,batch_size,small,num_vis);
+                [hmc_step, hmc_ave_rej,negdata] = draw_HMC_samples(negdataini,VF,FH,hb_cov,vb,W,hb_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,batch_size,small,num_vis);
             end
             
             %% compute derivatives at the negative samples
@@ -116,7 +116,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
                     FH = FH .* mask;
                 end
                 % normalize columns of FH
-                t11 = 1/sum(FH);
+                t11 = 1./sum(FH);
                 FH = FH .* t11;
             end
             W_meaninc = W_meaninc + sign(W) .* weightcost;
@@ -125,12 +125,13 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
         end
         
         % Display the parameters
+            fprintf('Epoch %d \n',t);
             fprintf('VF: %3.2e \n', norm(VF));
             fprintf('DVF: %3.2e \n',norm(VFinc)*(epsilonVFc/batch_size));
             fprintf('FH: %3.2e \n', norm(FH));
             fprintf('DFH: %3.2e \n',norm(FHinc)*(epsilonFHc/batch_size));
             fprintf('bias_cov: %3.2e \n', norm(hb_cov));
-            fprintf('Dbias_cov: %3.2e n', norm(bias_covinc)*(epsilonbc/batch_size));
+            fprintf('Dbias_cov: %3.2e \n', norm(bias_covinc)*(epsilonbc/batch_size));
             fprintf('bias_vis: %3.2e \n' , norm(vb)); 
             fprintf('Dbias_vis: %3.2e \n',norm(bias_visinc)*(epsilonbc/batch_size));  
             fprintf('wm: %3.2e \n',norm(W)); 
@@ -141,14 +142,14 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             fprintf('rej: %3.2e \n', hmc_ave_rej);
             
             %Computing the energy
-            meanEnergy(t) = mean(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,true)).Var1(1));
-            minEnergy(t) = min(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,true)).Var1(1));
-            maxEnergy(t) = max(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,true)).Var1(1));
+            meanEnergy(t) = mean(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+            minEnergy(t) = min(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+            maxEnergy(t) = max(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
             
             %Plot energy plots and save
     end
     %Backup
     
-    save('variables',VF,FH,hb_cov,vb,W,hb_mean);
-    save('training_energy',meanEnergy,maxEnergy,minEnergy);
+    save variables.mat VF FH hb_cov vb W hb_mean
+    save training_energy.mat meanEnergy maxEnergy minEnergy
 end

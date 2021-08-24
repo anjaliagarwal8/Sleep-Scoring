@@ -30,7 +30,7 @@ function [hmc_step, hmc_ave_rej,negdata] = draw_HMC_samples(data,VF,FH,hb_cov,vb
     
     %Rejection
     thresh = exp(old_energy - new_energy);
-    t4 = rand(1,batch_size);
+    t4 = rand(size(thresh));
     
     t4 = t4 < thresh;
     
