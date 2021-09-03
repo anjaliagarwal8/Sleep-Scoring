@@ -68,6 +68,7 @@ def compute_gradient_mcRBM(data,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mea
     torch.sqrt(lengthsq, out = length)
     torch.reciprocal(length, out = normcoeff) # 1xP
     torch.mul(data, normcoeff, out = normdata)
+    
     torch.matmul(VF.T, normdata, out = feat)
     torch.mul(feat, feat, out = featsq)
     torch.matmul(FH.T, featsq, out = t1)

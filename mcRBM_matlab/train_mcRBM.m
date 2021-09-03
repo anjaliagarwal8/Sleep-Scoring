@@ -11,11 +11,18 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
     
     for t=1:num_epochs
         % Anneal learning rates
-        epsilonVFc    = epsilonVF/max(1,t/20);
-        epsilonFHc    = epsilonFH/max(1,t/20);
-        epsilonbc    = epsilonb/max(1,t/20);
-        epsilonw_meanc = epsilonw_mean/max(1,t/20);
-        epsilonb_meanc = epsilonb_mean/max(1,t/20);
+%         epsilonVFc    = epsilonVF/max(1,t/20);
+%         epsilonFHc    = epsilonFH/max(1,t/20);
+%         epsilonbc    = epsilonb/max(1,t/20);
+%         epsilonw_meanc = epsilonw_mean/max(1,t/20);
+%         epsilonb_meanc = epsilonb_mean/max(1,t/20);
+
+        % No annealing was used in sleep classification
+        epsilonVFc    = epsilonVF;
+        epsilonFHc    = epsilonFH;
+        epsilonbc    = epsilonb;
+        epsilonw_meanc = epsilonw_mean;
+        epsilonb_meanc = epsilonb_mean;
         weightcost = weightcost_final;
         
         if t <= startFH
