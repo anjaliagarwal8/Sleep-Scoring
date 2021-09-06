@@ -154,6 +154,11 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             maxEnergy(t) = max(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
             
             %Plot energy plots and save
+            
+            if rem(t,1000) == 0
+                save variables.mat VF FH hb_cov vb W hb_mean
+                save training_energy.mat meanEnergy maxEnergy minEnergy
+            end
     end
     %Backup
     

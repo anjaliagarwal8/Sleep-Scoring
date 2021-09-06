@@ -18,6 +18,13 @@ save visData.mat visData
 %% Initializing the parameters
 
 load input_configuration
+num_epochs = 10000;
+batch_size = 256;
+num_fac = 11;
+num_hid_cov = 11;
+num_hid_mean = 10;
+epsilon = .01;
+
 totnumcases = size(data,1);
 %data = data.whitendata(1:floor(totnumcases/batch_size)*batch_size,:);
 %totnumcases = size(data,1);
@@ -38,7 +45,7 @@ hmc_step =  0.01;
 hmc_ave_rej =  hmc_target_ave_rej;
 
 %% Initializing the weights and biases for the network
-2129-2237
+
 [W,VF,FH,vb,hb_cov,hb_mean] = initialize_weights(num_vis,num_hid_mean,num_hid_cov,num_fac);
 
 %% Training the RBM with the data and extracting updated weights and biases  
