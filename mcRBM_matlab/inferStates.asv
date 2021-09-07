@@ -28,3 +28,6 @@ dsq = np.square(self.d)
         
 dsq = d.^2;
 lsq = sum(dsq);
+lsq = lsq./size(d,2);
+lsq = lsq + eps(1);
+l = sqrt(lsq);
