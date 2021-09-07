@@ -14,7 +14,7 @@ dMinRow = min(d);
 dMaxRow = max(d);
 data = 10.*((d - dMinRow) ./ (dMaxRow - dMinRow) - 0.5);
 visData = data;
-save visData.mat visData
+save visData.mat visData obsKeys epochTime
 %% Initializing the parameters
 
 load input_configuration
