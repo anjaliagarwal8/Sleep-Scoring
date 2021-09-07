@@ -1,8 +1,10 @@
 %% Loading data and variables 
+sampleData = load('sampleData.mat');
 visData = load('visData_final.mat');
 variables = load('variables_final.mat');
 
 % Load Data
+
 d = visData.visData;
 obsKeys = visData.obsKeys;
 
@@ -38,3 +40,18 @@ logisticArg_m = d*W + hb_mean';
 p_hm = sigmoid(logisticArg_m);
 
 %% Infer latent states from latent activations
+p_all = cat(2,p_hc,p_hm);
+
+image_hc = uint8(p_hc.*255.0);
+image_hm = uint8(p_hm.*255.0);
+
+image(image_hc)
+colorbar
+
+% Binarize the latent activations
+binary_latentActivation = p_all >= 0.5;
+
+save latentStates.mat p_all binary_latentActivation
+
+imagesc(binary_latentActivation)
+colormap(gray)
