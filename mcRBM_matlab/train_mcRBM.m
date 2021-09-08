@@ -39,7 +39,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             
             % Normalize the data
             t6 = data .* data;
-            lengthsq = sum(t6)./num_vis + small;
+            lengthsq = (sum(t6)./num_vis) + small;
             len = sqrt(lengthsq);
             normcoeff = 1./len;
             normdata  = data .* normcoeff;
@@ -48,10 +48,10 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             % Covariance part
             feat   = VF'*normdata;
             featsq = feat .* feat;
-            t1 = FH'*featsq .* (-0.5) + hb_cov;
+            t1 = ((FH'*featsq) .* (-0.5)) + hb_cov;
             t2     = sigmoid(t1);
             FHinc  = featsq*t2';
-            t3     = FH*t2 .* feat;
+            t3     = (FH*t2) .* feat;
             VFinc  = normdata*t3';
             bias_covinc = sum(t2,2) .* (-1);
 
@@ -59,7 +59,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             bias_visinc = sum(data,2) .* (-1);
 
             % Mean part
-            feat_mean = sigmoid(W'*data + hb_mean) .* (-1);
+            feat_mean = sigmoid((W'*data) + hb_mean) .* (-1);
             W_meaninc = data*feat_mean';
             bias_meaninc = sum(feat_mean,2);
             
@@ -74,7 +74,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             %% compute derivatives at the negative samples
             % normalize input data
             t6 = negdata .* negdata;
-            lengthsq = sum(t6)./num_vis + small;
+            lengthsq = (sum(t6)./num_vis) + small;
             len = sqrt(lengthsq);
             normcoeff = 1./len;
             normdata  = negdata .* normcoeff;
@@ -82,26 +82,26 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             % covariance part
             feat = VF'*normdata;
             featsq = feat .* feat;
-            t1 = FH'*featsq .* (-0.5);
+            t1 = (FH'*featsq) .* (-0.5);
             t1 = t1 + hb_cov;
             t2 = sigmoid(t1);
             FHinc = FHinc - (featsq*t2');
             FHinc = FHinc .* 0.5;
-            t3 = FH*t2 .* feat;
-            VFinc = VFinc - normdata*t3';
+            t3 = (FH*t2) .* feat;
+            VFinc = VFinc - (normdata*t3');
             bias_covinc = bias_covinc + sum(t2,2);
             
             % visible bias
             bias_visinc = bias_visinc + sum(negdata,2);
             
             % mean part
-            feat_mean = sigmoid(W'*negdata + hb_mean);
-            W_meaninc = W_meaninc + negdata*feat_mean';
+            feat_mean = sigmoid((W'*negdata) + hb_mean);
+            W_meaninc = W_meaninc + (negdata*feat_mean');
             bias_meaninc = bias_meaninc + sum(feat_mean,2);
             
             % update parameters
-            VFinc = VFinc + sign(VF) .* weightcost;
-            VF = VF + VFinc .* (-epsilonVFc/batch_size);
+            VFinc = VFinc + (sign(VF) .* weightcost);
+            VF = VF + (VFinc .* (-epsilonVFc/batch_size));
             % normalizing columns of VF
             t8 = VF .* VF;
             t10 = sqrt(sum(t8));
@@ -110,13 +110,13 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             t10 = 1./t10;
             VF = VF .* t10; 
             VF = VF .* normVF;
-            hb_cov = hb_cov + bias_covinc .* ( -epsilonbc/batch_size);
-            vb = vb + bias_visinc .* ( -epsilonbc/batch_size);
+            hb_cov = hb_cov + (bias_covinc .* ( -epsilonbc/batch_size));
+            vb = vb + (bias_visinc .* ( -epsilonbc/batch_size));
             
             if t>startFH
-                FHinc = FHinc + sign(FH) .* weightcost;
+                FHinc = FHinc + (sign(FH) .* weightcost);
             
-                FH = FH + FHinc .* (-epsilonFHc/batch_size);
+                FH = FH + (FHinc .* (-epsilonFHc/batch_size));
                 t9 = FH > 0;
                 FH = FH .* t9;
                 if apply_mask == 1
@@ -126,9 +126,9 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
                 t11 = 1./sum(FH);
                 FH = FH .* t11;
             end
-            W_meaninc = W_meaninc + sign(W) .* weightcost;
-            W = W + W_meaninc .* (-epsilonw_meanc/batch_size);
-            hb_mean = hb_mean + bias_meaninc .* (-epsilonb_meanc/batch_size);
+            W_meaninc = W_meaninc + (sign(W) .* weightcost);
+            W = W + (W_meaninc .* (-epsilonw_meanc/batch_size));
+            hb_mean = hb_mean + (bias_meaninc .* (-epsilonb_meanc/batch_size));
         end
         
         % Display the parameters
