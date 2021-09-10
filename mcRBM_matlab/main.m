@@ -18,7 +18,7 @@ save visData.mat visData obsKeys epochTime
 %% Initializing the parameters
 
 load input_configuration
-num_epochs = 10000;
+num_epochs = 1000;
 batch_size = 256;
 num_fac = 11;
 num_hid_cov = 11;
