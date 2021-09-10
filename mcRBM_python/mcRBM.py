@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import pylab
 import matplotlib.pyplot as plt
+from np.random import RandomState
 
 ######################################################################
 # compute the value of the free energy at a given input
@@ -151,6 +152,9 @@ def draw_HMC_samples(data,negdata,normdata,vel,gradient,normgradient,new_energy,
 # at the training samples and at the negative samples drawn calling HMC sampler.
 def train_mcRBM():
     
+    np.random.seed(124)
+    prng =  RandomState(123)
+        
     config = configparser.ConfigParser()
     config.read('input_configuration')
 
@@ -171,8 +175,14 @@ def train_mcRBM():
     # load data
     data_file_name =  config.get('DATA','data_file_name')
     d = loadmat(data_file_name) # input in the format PxD (P vectorized samples with D dimensions)
-    totnumcases = d["whitendata"].shape[0]
-    d = d["whitendata"][0:int(pylab.floor(totnumcases/batch_size))*batch_size,:].copy() 
+    d = d.astype(np.float32)
+    
+    permIdx = prng.permutation(d.shape[0])
+
+    d = d[permIdx,:]
+     
+    #totnumcases = d["whitendata"].shape[0]
+    #d = d["whitendata"][0:int(pylab.floor(totnumcases/batch_size))*batch_size,:].copy() 
     totnumcases = d.shape[0]
     num_vis =  d.shape[1]
     num_batches = int(totnumcases/batch_size)
