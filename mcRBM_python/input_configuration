@@ -3,9 +3,9 @@
 [MAIN_PARAMETER_SETTING]
 
 # number of sweeeps through the training dataset
-num_epochs = 50
+num_epochs = 10000
 # number of samples in each batch (better if multiple of 8 on GPU)
-batch_size = 128
+batch_size = 256
 # after these many epochs, update the factor-hidden matrix (wait for visible-factor matrix to converge first)
 startFH = 10
 # start using L1 weight decay on weight matrices after <startwd> epochs
@@ -17,21 +17,21 @@ doPCD = 1
 
 [MODEL_PARAMETER_SETTING]
 # number of factors (columns of visible-factor matrix)
-num_fac = 256 
+num_fac = 11
 # number of covariance hidden units
-num_hid_cov = 256
+num_hid_cov = 11
 # number of mean hidden units
-num_hid_mean = 100
+num_hid_mean = 10
 # restrict the number of non-zero values in factor-hidden matrix
 apply_mask = 0
 
 [DATA]
 # training dataset
-data_file_name = training_colorpatches_16x16_demo.mat
+#data_file_name = sampleData.mat
 
 [OPTIMIZER_PARAMETERS]
 # learning rate 
-epsilon = .075
+epsilon = .01
 # L1 weight decay
 weightcost_final = 0.001
 
