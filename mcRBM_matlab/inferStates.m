@@ -28,7 +28,7 @@ l = sqrt(lsq);
 normD = d./l;
 
 % Compute logistic_covariance_argument
-logisticArg_c = (-0.5*FH'*((VF'*normD').^2) + hb_cov)';
+logisticArg_c = (((FH'*((VF'*normD').^2)).* (-0.5)) + hb_cov)';
 
 % compute hidden_covariance probabilities:
 p_hc = sigmoid(logisticArg_c);
