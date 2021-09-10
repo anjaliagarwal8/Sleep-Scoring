@@ -1,6 +1,6 @@
 function [hmc_step, hmc_ave_rej,negdata] = draw_HMC_samples(data,VF,FH,hb_cov,vb,W,hb_mean,hmc_step,hmc_step_nr,hmc_ave_rej,hmc_target_ave_rej,batch_size,small,num_vis)
 
-    vel = randn(size(data));
+    vel = randn(size(data),'double');
     negdata = data;
     
     [old_energy,vel] = compute_energy_mcRBM(negdata,vel,VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,false);
