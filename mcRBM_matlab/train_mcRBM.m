@@ -25,10 +25,10 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
         epsilonb_meanc = epsilonb_mean;
         weightcost = weightcost_final;
         
-        if t <= startFH
+        if t-1 <= startFH
             epsilonFHc = 0;
         end
-        if t <= startwd	
+        if t-1 <= startwd	
             weightcost = 0;
         end
         
@@ -113,7 +113,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             hb_cov = hb_cov + (bias_covinc .* ( -epsilonbc/batch_size));
             vb = vb + (bias_visinc .* ( -epsilonbc/batch_size));
             
-            if t>startFH
+            if t-1 > startFH
                 FHinc = FHinc + (sign(FH) .* weightcost);
             
                 FH = FH + (FHinc .* (-epsilonFHc/batch_size));
