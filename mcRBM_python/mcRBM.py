@@ -444,10 +444,11 @@ def train_mcRBM():
 #    bias_cov.copy_to_host()
 #    bias_vis.copy_to_host()
 #    w_mean.copy_to_host()
+    
 #    bias_mean.copy_to_host()
     savemat("ws_fac" + str(num_fac) + "_cov" + str(num_hid_cov) + "_mean" + str(num_hid_mean)+".mat", {'VF':VF.cpu().data.numpy(),'FH':FH.cpu().data.numpy(),'bias_cov': bias_cov.cpu().data.numpy(), 'bias_vis': bias_vis.cpu().data.numpy(), 'w_mean': w_mean.cpu().data.numpy(), 'bias_mean': bias_mean.cpu().data.numpy(), 'epoch':epoch})
     savemat("training_energy_" + str(num_fac) + "_cov" + str(num_hid_cov) + "_mean" + str(num_hid_mean)+".mat", {'meanEnergy':meanEnergy, 'maxEnergy': maxEnergy, 'minEnergy': minEnergy, 'epoch':epoch})
-    print(w_mean)
+    
  
 if __name__ == "__main__":
     

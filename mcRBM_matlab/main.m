@@ -15,6 +15,10 @@ dMaxRow = max(d);
 data = 10.*((d - dMinRow) ./ (dMaxRow - dMinRow) - 0.5);
 visData = data;
 save visData.mat visData obsKeys epochTime
+
+permIdx = randperm(size(data,1));
+data = data(permIdx,:);
+
 %% Initializing the parameters
 
 load input_configuration
