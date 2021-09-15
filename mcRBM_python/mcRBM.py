@@ -223,7 +223,9 @@ def train_mcRBM():
     bias_vis = torch.tensor( np.array(np.zeros((num_vis, 1)), dtype=np.float32, order='F') )
     w_mean = torch.tensor( np.array( 0.05 * np.random.randn(num_vis, num_hid_mean), dtype=np.float32, order='F') ) # VxH
     bias_mean = torch.tensor( np.array( -2.0*np.ones((num_hid_mean,1)), dtype=np.float32, order='F') )
-
+    
+    savemat("variables_init.mat",{'VF':VF.cpu().data.numpy(),'FH':FH.cpu().data.numpy(),'bias_cov': bias_cov.cpu().data.numpy(), 'bias_vis': bias_vis.cpu().data.numpy(), 'w_mean': w_mean.cpu().data.numpy(), 'bias_mean': bias_mean.cpu().data.numpy()})
+    
     # initialize variables to store derivatives 
     VFinc = torch.tensor( np.array(np.zeros((num_vis, num_fac)), dtype=np.float32, order='F'))
     FHinc = torch.tensor( np.array(np.zeros((num_fac, num_hid_cov)), dtype=np.float32, order='F'))

@@ -6,12 +6,12 @@ function [W,VF,FH,vb,hb_cov,hb_mean] = initialize_weights(n_vis,n_hid_mean,n_hid
 % while biases are initialized with zeros 
 % Note: Weight Initialization can be optimised for better performance
 
-    W = 0.05 .* (randn(n_vis, n_hid_mean,'double')); % Mean Weight matrix
+    W = 0.05 .* (randn(n_vis, n_hid_mean,'single')); % Mean Weight matrix
     vb = zeros(n_vis,1); % Visible layer bias
-    hb_mean = -2.0 .* ones(n_hid_mean,1,'double'); % Mean hidden layer bias
-    hb_cov = 2.0 .* ones(n_hid_cov,1,'double'); % Covariance hidden layer bias
+    hb_mean = -2.0 .* ones(n_hid_mean,1,'single'); % Mean hidden layer bias
+    hb_cov = 2.0 .* ones(n_hid_cov,1,'single'); % Covariance hidden layer bias
     
-    VF = 0.02 .* (randn(n_vis, num_fac,'double')); % Visible Factor matrix
-    FH = eye(num_fac,n_hid_cov,'double'); % Factor Hidden matrix
+    VF = 0.02 .* (randn(n_vis, num_fac,'single')); % Visible Factor matrix
+    FH = eye(num_fac,n_hid_cov,'single'); % Factor Hidden matrix
     
 end

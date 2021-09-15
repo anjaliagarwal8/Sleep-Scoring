@@ -17,6 +17,12 @@ vb = variables.bias_vis;
 hb_cov = variables.bias_cov;
 hb_mean = variables.bias_mean;
 
+W = variables_m.W;
+VF = variables_m.VF;
+FH = variables_m.FH;
+vb = variables_m.vb;
+hb_cov = variables_m.hb_cov;
+hb_mean = variables_m.hb_mean;
 %% Compute latent activations
 % Compute the probabilities of the covariance units (normalize data for
 % covariance hidden)
