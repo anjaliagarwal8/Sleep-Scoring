@@ -9,7 +9,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
     minEnergy = zeros(num_epochs,1);
     maxEnergy = zeros(num_epochs,1);
     
-    for t=1:num_epochs
+    for t=0:num_epochs-1
         % Anneal learning rates
 %         epsilonVFc    = epsilonVF/max(1,t/20);
 %         epsilonFHc    = epsilonFH/max(1,t/20);
@@ -25,10 +25,10 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
         epsilonb_meanc = epsilonb_mean;
         weightcost = weightcost_final;
         
-        if t-1 <= startFH
+        if t <= startFH
             epsilonFHc = 0;
         end
-        if t-1 <= startwd	
+        if t <= startwd	
             weightcost = 0;
         end
         
@@ -113,7 +113,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             hb_cov = hb_cov + (bias_covinc .* ( -epsilonbc/batch_size));
             vb = vb + (bias_visinc .* ( -epsilonbc/batch_size));
             
-            if t-1 > startFH
+            if t > startFH
                 FHinc = FHinc + (sign(FH) .* weightcost);
             
                 FH = FH + (FHinc .* (-epsilonFHc/batch_size));
@@ -149,19 +149,19 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             fprintf('rej: %3.2e \n', hmc_ave_rej);
             
             %Computing the energy
-            meanEnergy(t) = mean(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
-            minEnergy(t) = min(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
-            maxEnergy(t) = max(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
-            
+%             meanEnergy(t) = mean(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+%             minEnergy(t) = min(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+%             maxEnergy(t) = max(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+%             
             %Plot energy plots and save
             
             if rem(t,1000) == 0
                 save variables.mat VF FH hb_cov vb W hb_mean
-                save training_energy.mat meanEnergy maxEnergy minEnergy
+%                 save training_energy.mat meanEnergy maxEnergy minEnergy
             end
     end
     %Backup
     
     save variables.mat VF FH hb_cov vb W hb_mean
-    save training_energy.mat meanEnergy maxEnergy minEnergy
+    %save training_energy.mat meanEnergy maxEnergy minEnergy
 end

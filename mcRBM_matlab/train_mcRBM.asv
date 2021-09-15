@@ -4,12 +4,12 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
 
     small = 0.5;
     normVF = 1;
-    negdata = randn(num_vis,batch_size);
+    negdata = randn(num_vis,batch_size,'double');
     meanEnergy = zeros(num_epochs,1);
     minEnergy = zeros(num_epochs,1);
     maxEnergy = zeros(num_epochs,1);
     
-    for t=1:num_epochs
+    for t=0:num_epochs-1
         % Anneal learning rates
 %         epsilonVFc    = epsilonVF/max(1,t/20);
 %         epsilonFHc    = epsilonFH/max(1,t/20);
@@ -113,7 +113,7 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             hb_cov = hb_cov + (bias_covinc .* ( -epsilonbc/batch_size));
             vb = vb + (bias_visinc .* ( -epsilonbc/batch_size));
             
-            if t>startFH
+            if t > startFH
                 FHinc = FHinc + (sign(FH) .* weightcost);
             
                 FH = FH + (FHinc .* (-epsilonFHc/batch_size));
@@ -126,34 +126,33 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
                 t11 = 1./sum(FH);
                 FH = FH .* t11;
             end
-            
             W_meaninc = W_meaninc + (sign(W) .* weightcost);
             W = W + (W_meaninc .* (-epsilonw_meanc/batch_size));
             hb_mean = hb_mean + (bias_meaninc .* (-epsilonb_meanc/batch_size));
         end
         
-%         % Display the parameters
-%             fprintf('Epoch %d \n',t);
-%             fprintf('VF: %3.2e \n', norm(VF));
-%             fprintf('DVF: %3.2e \n',norm(VFinc)*(epsilonVFc/batch_size));
-%             fprintf('FH: %3.2e \n', norm(FH));
-%             fprintf('DFH: %3.2e \n',norm(FHinc)*(epsilonFHc/batch_size));
-%             fprintf('bias_cov: %3.2e \n', norm(hb_cov));
-%             fprintf('Dbias_cov: %3.2e \n', norm(bias_covinc)*(epsilonbc/batch_size));
-%             fprintf('bias_vis: %3.2e \n' , norm(vb)); 
-%             fprintf('Dbias_vis: %3.2e \n',norm(bias_visinc)*(epsilonbc/batch_size));  
-%             fprintf('wm: %3.2e \n',norm(W)); 
-%             fprintf('Dwm: %3.2e \n',norm(W)*(epsilonw_meanc/batch_size));
-%             fprintf('bm: %3.2e \n', norm(hb_mean)); 
-%             fprintf('Dbm: %3.2e \n',norm(bias_meaninc)*(epsilonb_meanc/batch_size)); 
-%             fprintf('step: %3.2e \n', hmc_step);  
-%             fprintf('rej: %3.2e \n', hmc_ave_rej);
+        % Display the parameters
+            fprintf('Epoch %d \n',t);
+            fprintf('VF: %3.2e \n', norm(VF));
+            fprintf('DVF: %3.2e \n',norm(VFinc)*(epsilonVFc/batch_size));
+            fprintf('FH: %3.2e \n', norm(FH));
+            fprintf('DFH: %3.2e \n',norm(FHinc)*(epsilonFHc/batch_size));
+            fprintf('bias_cov: %3.2e \n', norm(hb_cov));
+            fprintf('Dbias_cov: %3.2e \n', norm(bias_covinc)*(epsilonbc/batch_size));
+            fprintf('bias_vis: %3.2e \n' , norm(vb)); 
+            fprintf('Dbias_vis: %3.2e \n',norm(bias_visinc)*(epsilonbc/batch_size));  
+            fprintf('wm: %3.2e \n',norm(W)); 
+            fprintf('Dwm: %3.2e \n',norm(W)*(epsilonw_meanc/batch_size));
+            fprintf('bm: %3.2e \n', norm(hb_mean)); 
+            fprintf('Dbm: %3.2e \n',norm(bias_meaninc)*(epsilonb_meanc/batch_size)); 
+            fprintf('step: %3.2e \n', hmc_step);  
+            fprintf('rej: %3.2e \n', hmc_ave_rej);
             
             %Computing the energy
-            meanEnergy(t) = mean(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
-            minEnergy(t) = min(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
-            maxEnergy(t) = max(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
-            
+%             meanEnergy(t) = mean(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+%             minEnergy(t) = min(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+%             maxEnergy(t) = max(table(compute_energy_mcRBM(data,randn(size(data)),VF,FH,hb_cov,vb,W,hb_mean,small,num_vis,true)).Var1(1));
+%             
             %Plot energy plots and save
             
             if rem(t,1000) == 0
