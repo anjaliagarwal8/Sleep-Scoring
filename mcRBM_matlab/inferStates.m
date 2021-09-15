@@ -1,7 +1,8 @@
 %% Loading data and variables 
 sampleData = load('sampleData.mat');
 visData = load('visData_final.mat');
-variables = load('variables_final.mat');
+variables = load('variables_p.mat');
+variables_m = load('variables_final.mat');
 
 % Load Data
 
@@ -9,12 +10,12 @@ d = visData.visData;
 obsKeys = visData.obsKeys;
 
 % Load latent variables
-W = variables.W;
+W = variables.w_mean;
 VF = variables.VF;
 FH = variables.FH;
-vb = variables.vb;
-hb_cov = variables.hb_cov;
-hb_mean = variables.hb_mean;
+vb = variables.bias_vis;
+hb_cov = variables.bias_cov;
+hb_mean = variables.bias_mean;
 
 %% Compute latent activations
 % Compute the probabilities of the covariance units (normalize data for
@@ -28,7 +29,7 @@ l = sqrt(lsq);
 normD = d./l;
 
 % Compute logistic_covariance_argument
-logisticArg_c = (((FH'*((VF'*normD').^2)).* (-0.5)) + hb_cov)';
+logisticArg_c = (((FH'*((VF'*d').^2)).* (-0.5)) + hb_cov)';
 
 % compute hidden_covariance probabilities:
 p_hc = sigmoid(logisticArg_c);

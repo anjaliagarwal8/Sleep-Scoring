@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import pylab
 import matplotlib.pyplot as plt
-from np.random import RandomState
+from numpy.random import RandomState
 
 ######################################################################
 # compute the value of the free energy at a given input
@@ -63,7 +63,7 @@ def compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean
 def compute_gradient_mcRBM(data,normdata,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t3,t4,t6,feat,featsq,feat_mean,gradient,normgradient,length,lengthsq,normcoeff,small,num_vis):
     # normalize input data
     torch.mul(data, data, out = t6) # DxP
-    torch.add(t6, 0, out = lengthsq) # 1xP
+    torch.sum(t6, 0, keepdims = True, out = lengthsq) # 1xP
     torch.mul(lengthsq, 1./num_vis, out = lengthsq) # normalize by number of components (like std)
     torch.add(lengthsq, small, out = lengthsq) 
     torch.sqrt(lengthsq, out = length)
@@ -175,12 +175,18 @@ def train_mcRBM():
     # load data
     data_file_name =  config.get('DATA','data_file_name')
     d = loadmat(data_file_name) # input in the format PxD (P vectorized samples with D dimensions)
+    d = d['d']
     d = d.astype(np.float32)
+    
+    # Scaling the data
+    dMinRow = np.min(d, axis = 0)
+    dMaxRow = np.max(d, axis = 0)
+    d = 10.*((d - dMinRow) / (dMaxRow - dMinRow) - 0.5)
     
     permIdx = prng.permutation(d.shape[0])
 
     d = d[permIdx,:]
-     
+    
     #totnumcases = d["whitendata"].shape[0]
     #d = d["whitendata"][0:int(pylab.floor(totnumcases/batch_size))*batch_size,:].copy() 
     totnumcases = d.shape[0]
@@ -269,7 +275,7 @@ def train_mcRBM():
     
     
     # start training
-    for epoch in range(num_epochs):
+    for epoch in range(1):
 
         print("Epoch " + str(epoch + 1))
         
@@ -291,7 +297,7 @@ def train_mcRBM():
             
         if epoch <= startFH:
             epsilonFHc = 0 
-        if epoch <= startwd:	
+        if epoch <= startwd:    
             weightcost = 0
 
         for batch in range(num_batches):
@@ -399,19 +405,19 @@ def train_mcRBM():
                 if apply_mask==1:
                     torch.mul(FH, mask, out = FH)
     
-		        # normalize columns of FH: L1 norm set to 1 in each column
+                # normalize columns of FH: L1 norm set to 1 in each column
                 torch.sum(FH, 0, keepdims = True,out = t11)
                 torch.reciprocal(t11, out = t11)
                 torch.mul(FH, t11, out = FH) 
-		       
+               
             torch.add(w_meaninc, torch.mul(torch.sign(w_mean),weightcost), out = w_meaninc)
             torch.add(w_mean, torch.mul(w_meaninc, -epsilonw_meanc/batch_size), out = w_mean)
             torch.add(bias_mean, torch.mul(bias_meaninc, -epsilonb_meanc/batch_size), out = bias_mean)
             
-            if verbose == 1:
-                print("VF: " + '%3.2e' % VF.euclid_norm() + ", DVF: " + '%3.2e' % (VFinc.euclid_norm()*(epsilonVFc/batch_size)) + ", FH: " + '%3.2e' % FH.euclid_norm() + ", DFH: " + '%3.2e' % (FHinc.euclid_norm()*(epsilonFHc/batch_size)) + ", bias_cov: " + '%3.2e' % bias_cov.euclid_norm() + ", Dbias_cov: " + '%3.2e' % (bias_covinc.euclid_norm()*(epsilonbc/batch_size)) + ", bias_vis: " + '%3.2e' % bias_vis.euclid_norm() + ", Dbias_vis: " + '%3.2e' % (bias_visinc.euclid_norm()*(epsilonbc/batch_size)) + ", wm: " + '%3.2e' % w_mean.euclid_norm() + ", Dwm: " + '%3.2e' % (w_meaninc.euclid_norm()*(epsilonw_meanc/batch_size)) + ", bm: " + '%3.2e' % bias_mean.euclid_norm() + ", Dbm: " + '%3.2e' % (bias_meaninc.euclid_norm()*(epsilonb_meanc/batch_size)) + ", step: " + '%3.2e' % hmc_step  +  ", rej: " + '%3.2e' % hmc_ave_rej) 
-                sys.stdout.flush()
-            
+#            if verbose == 1:
+#                print("VF: " + '%3.2e' % VF.euclid_norm() + ", DVF: " + '%3.2e' % (VFinc.euclid_norm()*(epsilonVFc/batch_size)) + ", FH: " + '%3.2e' % FH.euclid_norm() + ", DFH: " + '%3.2e' % (FHinc.euclid_norm()*(epsilonFHc/batch_size)) + ", bias_cov: " + '%3.2e' % bias_cov.euclid_norm() + ", Dbias_cov: " + '%3.2e' % (bias_covinc.euclid_norm()*(epsilonbc/batch_size)) + ", bias_vis: " + '%3.2e' % bias_vis.euclid_norm() + ", Dbias_vis: " + '%3.2e' % (bias_visinc.euclid_norm()*(epsilonbc/batch_size)) + ", wm: " + '%3.2e' % w_mean.euclid_norm() + ", Dwm: " + '%3.2e' % (w_meaninc.euclid_norm()*(epsilonw_meanc/batch_size)) + ", bm: " + '%3.2e' % bias_mean.euclid_norm() + ", Dbm: " + '%3.2e' % (bias_meaninc.euclid_norm()*(epsilonb_meanc/batch_size)) + ", step: " + '%3.2e' % hmc_step  +  ", rej: " + '%3.2e' % hmc_ave_rej) 
+#                sys.stdout.flush()
+#            
             compute_energy_mcRBM(data,normdata,vel,energy,VF,FH,bias_cov,bias_vis,w_mean,bias_mean,t1,t2,t6,feat,featsq,feat_mean,length,lengthsq,normcoeff,small,num_vis,True)
 #            energy.copy_to_host()
             meanEnergy[epoch] = np.mean(energy.cpu().data.numpy())

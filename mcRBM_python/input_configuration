@@ -27,7 +27,7 @@ apply_mask = 0
 
 [DATA]
 # training dataset
-#data_file_name = sampleData.mat
+data_file_name = sampleData.mat
 
 [OPTIMIZER_PARAMETERS]
 # learning rate 
