@@ -8,7 +8,7 @@ function gradient = compute_gradient_mcRBM(data,VF,FH,hb_cov,vb,W,hb_mean,small,
     normdata  = data .* normcoeff;
     
     feat   = VF'*normdata;
-    featsq = feat .* feat;
+    featsq = feat.^2;
     t1 = ((FH'*featsq) .* (-0.5)) + hb_cov;
     t2 = sigmoid(t1);
     t3 = (FH*t2) .* feat;
