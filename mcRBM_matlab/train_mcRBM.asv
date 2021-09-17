@@ -4,14 +4,8 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
 % vb = visible bias
 % hb_mean = mean bias
 % hb_cov = covariance bias
-% FH = Factor Hidden Matrix 
-% VF = Visible Factor Matric
-
-% -----------------Mean RBM------------------------------
-% Visible Units --(W,hb_mean)-> Mean Hidden Units 
-
-% -----------------Covariance RBM-------------------------
-% Visible Units --(VF)--> Covariance features --(FH,hb_cov)--> Covariance Hidden Units 
+% FH = Factor Hidden Matrix
+% VF = 
 
 % Factors compute the projection of the input data with a set of filters (columns of matrix VF).
 % Their output is squared because each factor is connected twice to the same data
