@@ -296,7 +296,8 @@ def train_mcRBM():
         epsilonbc = epsilonb
         epsilonw_meanc = epsilonw_mean
         epsilonb_meanc = epsilonb_mean
-            
+        weightcost = weightcost_final
+        
         if epoch <= startFH:
             epsilonFHc = 0 
         if epoch <= startwd:    
