@@ -1,3 +1,5 @@
+clear
+clc
 %% Main program to execute mean-covariance Restricted Boltzmann Machines (mcRBM)
 % Here parameters and data can be initialized
 

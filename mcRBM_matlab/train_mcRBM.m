@@ -51,10 +51,10 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
             weightcost = 0;
         end
         
-        for batch=0:num_batches
+        for batch=0:num_batches-1
             
             % get current minibatch
-            minidata = X(:,(batch*batch_size)+1:((batch+1)*batch_size)+1);
+            minidata = X(:,(batch*batch_size)+1:(batch+1)*batch_size);
             
             % Normalize the data
             t6 = minidata .* minidata;
