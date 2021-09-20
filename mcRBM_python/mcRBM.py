@@ -185,7 +185,7 @@ def train_mcRBM():
     
     permIdx = prng.permutation(d.shape[0])
 
-    d = d[permIdx,:]
+    #d = d[permIdx,:]
     
     #totnumcases = d["whitendata"].shape[0]
     #d = d["whitendata"][0:int(pylab.floor(totnumcases/batch_size))*batch_size,:].copy() 

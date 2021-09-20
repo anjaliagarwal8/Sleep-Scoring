@@ -17,7 +17,7 @@ visData = data;
 save visData.mat visData obsKeys epochTime
 
 permIdx = randperm(size(data,1));
-data = data(permIdx,:);
+%data = data(permIdx,:);
 
 %% Initializing the parameters
 
