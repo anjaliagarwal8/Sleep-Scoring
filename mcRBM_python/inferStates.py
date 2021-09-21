@@ -126,7 +126,8 @@ class GetStates(object):
         # Binarize the latent activations :
         self.binary_latentActivation = (self.p_all >= 0.5).astype(int)
         np.savez_compressed('latentStates.npz', probabilities=self.p_all, binary=self.binary_latentActivation)
-
+        #savemat('latentStates.mat',{probabilities:self.p_all, binary:self.binary_latentActivation})
+        
     # Function that computes the unique binary latent states
     def computeUniqueStates(self):
         '''
@@ -201,7 +202,7 @@ class GetStates(object):
         '''
         Function that infers the latent states.
         '''
-        ws_temp = loadmat('variables_p.mat')
+        ws_temp = loadmat('ws_temp.mat')
 #        if self.expDoneFlag=='True':
 #            ws_temp = loadmat(self.model)
 #        else:
