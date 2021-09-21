@@ -440,7 +440,7 @@ def train_mcRBM():
 #            w_mean.copy_to_host()
 #            bias_mean.copy_to_host()
 #            bias_vis.copy_to_host()
-            savemat("ws_temp", {'VF':VF.cpu().data.numpy(),'FH':FH.cpu().data.numpy(),'bias_cov': bias_cov.cpu().data.numpy(), 'bias_vis': bias_vis.cpu().data.numpy(),'w_mean': w_mean.cpu().data.numpy(), 'bias_mean': bias_mean.cpu().data.numpy(), 'epoch':epoch})    
+            savemat("ws_temp.mat", {'VF':VF.cpu().data.numpy(),'FH':FH.cpu().data.numpy(),'bias_cov': bias_cov.cpu().data.numpy(), 'bias_vis': bias_vis.cpu().data.numpy(),'w_mean': w_mean.cpu().data.numpy(), 'bias_mean': bias_mean.cpu().data.numpy(), 'epoch':epoch})    
     # final back-up
 #    VF.copy_to_host()
 #    FH.copy_to_host()
