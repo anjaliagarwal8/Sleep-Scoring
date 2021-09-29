@@ -5,7 +5,7 @@ clc
 
 %% Training data
 
-sampleData = load('sampleData.mat');
+sampleData = load('data.mat');
 d = sampleData.d;
 obsKeys = sampleData.epochsLinked;
 epochTime = sampleData.epochTime;
@@ -60,7 +60,7 @@ hb_cov = bias_cov;
 hb_mean = bias_mean;
 
 %% Training the RBM with the data and extracting updated weights and biases  
-num_epochs = 50;
+num_epochs = 1000;
 data = data';
 [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final,apply_mask);
 
