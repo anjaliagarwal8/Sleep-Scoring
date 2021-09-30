@@ -1,5 +1,5 @@
 %% Loading data and variables 
-sampleData = load('sampleData.mat');
+sampleData = load('data.mat');
 visData = load('visData_final.mat');
 variables = load('variables_p.mat');
 variables_m = load('variables_final.mat');
