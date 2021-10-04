@@ -1,21 +1,21 @@
 %% Loading data and variables 
 sampleData = load('data.mat');
-visData = load('visData_final.mat');
+visData = load('visData.mat');
 variables = load('variables_p.mat');
-variables_m = load('variables_final.mat');
+variables_m = load('variables.mat');
 
 % Load Data
 
-d = visData.visData;
+d = visData.data;
 obsKeys = visData.obsKeys;
 
 % Load latent variables
-W = variables.w_mean;
-VF = variables.VF;
-FH = variables.FH;
-vb = variables.bias_vis;
-hb_cov = variables.bias_cov;
-hb_mean = variables.bias_mean;
+W = variables_m.w_mean;
+VF = variables_m.VF;
+FH = variables_m.FH;
+vb = variables_m.bias_vis;
+hb_cov = variables_m.bias_cov;
+hb_mean = variables_m.bias_mean;
 
 W = variables_m.W;
 VF = variables_m.VF;
