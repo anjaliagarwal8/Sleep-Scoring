@@ -19,12 +19,12 @@ visData = data;
 save visData.mat visData obsKeys epochTime
 
 permIdx = randperm(size(data,1));
-%data = data(permIdx,:);
+data = data(permIdx,:);
 
 %% Initializing the parameters
 
 load input_configuration
-num_epochs = 1000;
+num_epochs = 30;
 batch_size = 256;
 num_fac = 11;
 num_hid_cov = 11;
@@ -53,14 +53,14 @@ hmc_ave_rej =  hmc_target_ave_rej;
 %% Initializing the weights and biases for the network
 
 [W,VF,FH,vb,hb_cov,hb_mean] = initialize_weights(num_vis,num_hid_mean,num_hid_cov,num_fac);
-load('variables_init.mat');
-W = w_mean;
-vb = bias_vis;
-hb_cov = bias_cov;
-hb_mean = bias_mean;
+% load('variables_init.mat');
+% W = w_mean;
+% vb = bias_vis;
+% hb_cov = bias_cov;
+% hb_mean = bias_mean;
 
 %% Training the RBM with the data and extracting updated weights and biases  
-num_epochs = 1000;
+
 data = data';
 [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final,apply_mask);
 
