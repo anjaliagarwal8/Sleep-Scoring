@@ -10,6 +10,14 @@ d = sampleData.d;
 obsKeys = sampleData.epochsLinked;
 epochTime = sampleData.epochTime;
 
+totnumcases = size(d,1);
+batch_size = 256;
+% extracts a subset of the rows of the data matrix. The objective is 
+% obtaining a data matrix which can be divided in batches of the 
+% selected size with no row left out
+d = d(1:(floor(totnumcases/batch_size)*batch_size),:);
+obsKeys = obsKeys(1:(floor(totnumcases/batch_size)*batch_size),:);
+epochTime = epochTime(1:(floor(totnumcases/batch_size)*batch_size),:);
 %% preprocess
 
 dMinRow = min(d);
