@@ -40,11 +40,7 @@ num_hid_mean = 10;
 epsilon = .01;
 
 totnumcases = size(data,1);
-%data = data.whitendata(1:floor(totnumcases/batch_size)*batch_size,:);
-%totnumcases = size(data,1);
-
-num_vis =  size(data,2);
-        
+num_vis =  size(data,2);       
 num_batches = totnumcases/batch_size;
 
 % training parameters
