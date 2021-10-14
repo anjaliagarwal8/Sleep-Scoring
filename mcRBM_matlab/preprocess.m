@@ -8,16 +8,21 @@ rem_idx = find(stage_idx == 3);
 nrem_idx = find(stage_idx == 2);
 wake_idx = find(stage_idx == 1);
 
-% Log and zero mean EMG feature
-dlog = abs(log(d));
-emg = dlog(:,11) - mean(dlog(:,11));
-
-% Log and zero mean delta/theta feature
-
+% EMG feature values
+emg = d(:,11);
 
 % Separating EMG feature into three stages
 emg_rem = emg(rem_idx);
 emg_nrem = emg(nrem_idx);
 emg_wake = emg(wake_idx);
 
-% Separating delta/theta into three stages
+% Plotting the histogram
+figure(1)
+histogram(emg_rem)
+hold on
+histogram(emg_nrem)
+hold on
+histogram(emg_wake)
+legend('REM','NREM','WAKE')
+title('EMG Histogram')
+saveas(gcf,'EMG_Histogram.jpg')
