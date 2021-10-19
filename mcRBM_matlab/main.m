@@ -57,11 +57,6 @@ hmc_ave_rej =  hmc_target_ave_rej;
 %% Initializing the weights and biases for the network
 
 [W,VF,FH,vb,hb_cov,hb_mean] = initialize_weights(num_vis,num_hid_mean,num_hid_cov,num_fac);
-% load('initialize.mat');
-% W = w_mean;
-% vb = bias_vis;
-% hb_cov = bias_cov;
-% hb_mean = bias_mean;
 
 %% Training the RBM with the data and extracting updated weights and biases  
 
