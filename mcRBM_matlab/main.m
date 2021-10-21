@@ -33,11 +33,6 @@ data = data(permIdx,:);
 
 load input_configuration
 num_epochs = 30;
-batch_size = 256;
-num_fac = 11;
-num_hid_cov = 11;
-num_hid_mean = 10;
-epsilon = .01;
 
 totnumcases = size(data,1);
 num_vis =  size(data,2);       
