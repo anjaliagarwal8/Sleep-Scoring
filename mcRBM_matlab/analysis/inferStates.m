@@ -1,28 +1,20 @@
+%% Script written for inferring the latent states from a trained mcRBM model.
+
 %% Loading data and variables 
-sampleData = load('data.mat');
 visData = load('visData.mat');
-variables = load('variables_p.mat');
-variables_m = load('variables.mat');
+variables = load('variables.mat');
 
 % Load Data
-
-d = visData.data;
+d = visData.visData;
 obsKeys = visData.obsKeys;
 
 % Load latent variables
-W = variables_m.w_mean;
-VF = variables_m.VF;
-FH = variables_m.FH;
-vb = variables_m.bias_vis;
-hb_cov = variables_m.bias_cov;
-hb_mean = variables_m.bias_mean;
-
-W = variables_m.W;
-VF = variables_m.VF;
-FH = variables_m.FH;
-vb = variables_m.vb;
-hb_cov = variables_m.hb_cov;
-hb_mean = variables_m.hb_mean;
+W = variables.W;
+VF = variables.VF;
+FH = variables.FH;
+vb = variables.vb;
+hb_cov = variables.hb_cov;
+hb_mean = variables.hb_mean;
 %% Compute latent activations
 % Compute the probabilities of the covariance units (normalize data for
 % covariance hidden)
