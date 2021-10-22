@@ -44,8 +44,20 @@ p_all = cat(2,p_hc,p_hm);
 image_hc = uint8(p_hc.*255.0);
 image_hm = uint8(p_hm.*255.0);
 
+% Saving the figures
+[status, msg, msgID] = mkdir('latentStatesPlots');
+cd latentStatesPlots
 image(image_hc)
-colorbar
+title('Covariance Hidden Activation')
+xlabel('covariance hidden units')
+ylabel('Epoch')
+saveas(gcf,'covariance_activation.png')
+
+image(image_hm)
+title('Mean Hidden Activation')
+xlabel('Mean hidden units')
+ylabel('Epoch')
+saveas(gcf,'mean_activation.png')
 
 % Binarize the latent activations
 binary_latentActivation = p_all >= 0.5;
@@ -54,3 +66,9 @@ save latentStates.mat p_all binary_latentActivation
 
 imagesc(binary_latentActivation)
 colormap(gray)
+title('Binary Latent Activations')
+xlabel('Hidden units')
+ylabel('Epoch')
+saveas(gcf,'binary_activation.png')
+
+% Computing unique latent States
