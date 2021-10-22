@@ -72,3 +72,4 @@ ylabel('Epoch')
 saveas(gcf,'binary_activation.png')
 
 % Computing unique latent States
+uniqueStates = unique(num2str(binary_latentActivation),'rows');
