@@ -71,5 +71,16 @@ xlabel('Hidden units')
 ylabel('Epoch')
 saveas(gcf,'binary_activation.png')
 
-% Computing unique latent States
-uniqueStates = unique(num2str(binary_latentActivation),'rows');
+% Computing unique latent States, index of unique latent state and count of
+% each latent state
+[uniqueAct,uniqueFramesID,ic] = unique(num2str(binary_latentActivation),'rows');
+uniqueCount = zeros(size(uniqueFramesID));
+for i=1:length(uniqueFramesID)
+    uniqueCount(i) = length(find(ic==i));
+end
+p_unique = p_all(uniqueFramesID,:);
+
+fprintf("The number of the unique latent activations is : %d \n",length(uniqueFramesID))
+
+% Check if there are hidden_units that are always off :
+singleton = find(uniqueCount==1);
