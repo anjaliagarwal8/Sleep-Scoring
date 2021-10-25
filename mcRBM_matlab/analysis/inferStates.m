@@ -1,4 +1,4 @@
-%% Script written for inferring the latent states from a trained mcRBM model.
+%% Script written for inferring the unique latent states from a trained mcRBM model.
 
 %% Loading data and variables 
 visData = load('visData.mat');
