@@ -89,4 +89,16 @@ disp("The sum of the unique latent activations' columns is : ")
 sum(uniqueAct,1)
 
 % Saving the above information for further analysis
-uniqueStates = zeros(
+uniqueStates = zeros(size(uniqueAct,1),size(uniqueAct,2)+2);
+obsKeys = [zeros(size(obsKeys,1),1) obsKeys];
+for i=1:size(uniqueAct,1)
+    uniqueStates(i,1) = i;
+    uniqueStates(i,2) = uniqueCount(i);
+    uniqueStates(i,3:size(uniqueStates,2)) = uniqueAct(i,:);
+    
+    RowIdx = find(ismember(binary_latentActivation, uniqueAct(i,:),'rows'));
+    obsKeys(RowIdx,:) = i;
+end
+
+save uniqueStates.mat uniqueStates p_unique
+save obsKeys.mat obsKeys
