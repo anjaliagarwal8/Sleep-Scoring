@@ -97,7 +97,7 @@ for i=1:size(uniqueAct,1)
     uniqueStates(i,3:size(uniqueStates,2)) = uniqueAct(i,:);
     
     RowIdx = find(ismember(binary_latentActivation, uniqueAct(i,:),'rows'));
-    obsKeys(RowIdx,:) = i;
+    obsKeys(RowIdx,1) = i;
 end
 
 save uniqueStates.mat uniqueStates p_unique
