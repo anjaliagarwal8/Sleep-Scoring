@@ -73,7 +73,8 @@ saveas(gcf,'binary_activation.png')
 
 % Computing unique latent States, index of unique latent state and count of
 % each latent state
-[uniqueAct,uniqueFramesID,ic] = unique(num2str(binary_latentActivation),'rows');
+[unique_bin,uniqueFramesID,ic] = unique(num2str(binary_latentActivation),'rows');
+uniqueAct = binary_latentActivation(uniqueFramesID,:);
 uniqueCount = zeros(size(uniqueFramesID));
 for i=1:length(uniqueFramesID)
     uniqueCount(i) = length(find(ic==i));
@@ -82,5 +83,10 @@ p_unique = p_all(uniqueFramesID,:);
 
 fprintf("The number of the unique latent activations is : %d \n",length(uniqueFramesID))
 
-% Check if there are hidden_units that are always off :
-singleton = find(uniqueCount==1);
+% Check if there are hidden_units that are always off by calculating sum of
+% binary hidden state
+disp("The sum of the unique latent activations' columns is : ")
+sum(uniqueAct,1)
+
+% Saving the above information for further analysis
+uniqueStates = zeros(
