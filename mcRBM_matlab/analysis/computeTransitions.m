@@ -2,3 +2,6 @@
 
 % Getting the obsKeys data from the inferStates script
 load obsKeys.mat
+
+% Find the unique centroids & their occurence
+centroidsOccurence = 
