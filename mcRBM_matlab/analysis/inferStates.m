@@ -45,8 +45,8 @@ image_hc = uint8(p_hc.*255.0);
 image_hm = uint8(p_hm.*255.0);
 
 % Saving the figures
-[status, msg, msgID] = mkdir('latentStatesPlots');
-cd latentStatesPlots
+[status, msg, msgID] = mkdir('latentStates');
+cd latentStates
 image(image_hc)
 title('Covariance Hidden Activation')
 xlabel('covariance hidden units')
