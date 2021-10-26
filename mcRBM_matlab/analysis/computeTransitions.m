@@ -6,7 +6,7 @@ load uniqueStates.mat
 
 countTransMat = zeros(size(uniqueStates,1),size(uniqueStates,1));
 
-% Computing transition probability matrix
+%% Computing transition probability matrix
 for i=1:length(obsKeys)-1
     if obsKeys(i+1,2) - obsKeys(i,2) == 1
         a = obsKeys(i,1);
@@ -26,7 +26,7 @@ transMat(idx_nan) = 0;
 
 save transitionsMat.mat transMat
 
-% Detect & remove singletons
+%% Detect & remove singletons
 threshold = 1; % This threshold can be changed depending on which desired threshold for occurence of latent states
 idx = find(uniqueStates(:,2) == threshold);
 transMat(idx,:) = [];
@@ -34,3 +34,6 @@ transMat(:,idx) = [];
 
 thresholdTransMat = transMat;
 save transitionMatThresholded.mat thresholdTransMat
+
+%% Plotting the directed graph for visualizing the latent states transitions
+
