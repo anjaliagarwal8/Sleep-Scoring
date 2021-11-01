@@ -32,7 +32,7 @@ data = data(permIdx,:);
 %% Initializing the parameters
 
 load input_configuration
-num_epochs = 30;
+num_epochs = 10000;
 
 totnumcases = size(data,1);
 num_vis =  size(data,2);       
