@@ -37,5 +37,5 @@ save transitionMatThresholded.mat thresholdTransMat
 
 %% Plotting the directed graph for visualizing the latent states transitions
 
-G = digraph(transMat);
+G = digraph(countTransMat);
 plot(G)
