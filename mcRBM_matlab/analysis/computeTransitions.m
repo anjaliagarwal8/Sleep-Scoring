@@ -28,7 +28,7 @@ save transitionsMat.mat transMat
 
 %% Detect & remove singletons
 threshold = 1; % This threshold can be changed depending on which desired threshold for occurence of latent states
-idx = find(uniqueStates(:,2) == threshold);
+idx = find(uniqueStates(:,2) <= threshold);
 transMat(idx,:) = [];
 transMat(:,idx) = [];
 
