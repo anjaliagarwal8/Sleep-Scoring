@@ -39,3 +39,7 @@ save transitionMatThresholded.mat thresholdTransMat
 
 G = digraph(countTransMat);
 plot(G)
+
+mc = dtmc(transMat);
+figure;
+graphplot(mc);
