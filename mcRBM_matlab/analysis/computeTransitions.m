@@ -44,13 +44,5 @@ mc = dtmc(transMat);
 figure;
 graphplot(mc);
 
-C = condensation(G);
-plot(C)
-
-x = asymptotics(mc);
-sc = subchain(mc,100);
-figure;
-graphplot(sc);
-
 %% HeatMap
 imagesc(countTransMat)
