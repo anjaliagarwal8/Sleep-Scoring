@@ -6,9 +6,18 @@ load uniqueStates.mat
 
 % computing the probability of each latent state to belong to each of the 3 sleep stages
 latentStates = length(uniqueStates);
+stageMat = zeros(latentStates,3);
 
 for l=1:latentStates
     idx = find(obsKeys(:,1) == l);
     statePopulation = length(idx);
-    length_wake = 
+    
+    length_wake = length(find(obsKeys(idx,4)==1));
+    length_nrem = length(find(obsKeys(idx,4)==2));
+    length_rem = length(find(obsKeys(idx,4)==3));
+    
+    stageMat(l,1) = length_wake;
+    stageMat(l,2) = length_nrem;
+    stageMat(l,3) = length_rem;
 end
+
