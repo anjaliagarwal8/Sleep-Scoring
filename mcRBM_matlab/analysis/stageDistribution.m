@@ -21,3 +21,15 @@ for l=1:latentStates
     stageMat(l,3) = length_rem;
 end
 
+[status, msg, msgID] = mkdir('StageDistribution');
+cd StageDistribution
+
+save StageDistributionMat.mat stageMat
+
+%% Plotting the heatmap to visualize latent state stage distribution
+cdata = zeros(size(stageMat));
+cdata = stageMat./sum(stageMat,2);
+
+heatmap(cdata);
+colormap 'turbo'
+
