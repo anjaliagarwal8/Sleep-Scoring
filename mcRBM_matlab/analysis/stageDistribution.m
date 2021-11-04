@@ -30,6 +30,11 @@ save StageDistributionMat.mat stageMat
 cdata = zeros(size(stageMat));
 cdata = stageMat./sum(stageMat,2);
 
-heatmap(cdata);
+% Method re-organizing a matrix according to linkage.
+aux_linkage = linkage(cdata,'average');
+[~,T] = dendrogram(aux_linkage,0);
+
+
+heatmap(cdata(T,:));
 colormap 'turbo'
 
