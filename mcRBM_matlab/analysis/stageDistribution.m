@@ -31,10 +31,12 @@ cdata = zeros(size(stageMat));
 cdata = stageMat./sum(stageMat,2);
 
 % Method re-organizing a matrix according to linkage.
-aux_linkage = linkage(cdata,'average');
-[~,T] = dendrogram(aux_linkage,0);
+aux_linkage = linkage(cdata,'average','euclidean');
+D = pdist(lstateColor);
+leafOrder = optimalleaforder(aux_linkage,D);
+[a,b,c] = dendrogram(aux_linkage,0);
 
 
-heatmap(cdata(T,:));
+heatmap(lstateColor(leaves,:),'GridVisible','off');
 colormap 'turbo'
 
