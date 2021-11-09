@@ -9,6 +9,13 @@ load stageDistributionMat.mat
 cd statesHistogram
 
 latentStates = length(uniqueStates);
+states = uniqueStates(:,1);
+frames = uniqueStates(:,2);
+
+bar(states,frames)
+xlabel('Latent States')
+ylabel('Number of Frames')
+saveas(gcf,'statesHistogram.png')
 
 % Compute histogram over latent states of interest
 centroidsHist = zeros(latentStates,3);
