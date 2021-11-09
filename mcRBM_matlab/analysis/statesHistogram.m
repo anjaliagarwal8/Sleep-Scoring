@@ -24,3 +24,15 @@ for s=1:latentStates
     centroidsHist(s,2) = uniqueStates(s,2);
     centroidsHist(s,3) = s;
 end
+
+% Normalize histogram using L2 Norm
+centroidsHist(:,2) = centroidsHist(:,2)./norm(centroidsHist(:,2),2);
+
+% Plotting the normalized histogram
+cdata = zeros(size(stageMat));
+cdata = stageMat./sum(stageMat,2);
+
+% Method re-organizing a matrix according to linkage.
+aux_linkage = linkage(cdata,'average','euclidean');
+[H,T,outperm] = dendrogram(aux_linkage,0);
+
