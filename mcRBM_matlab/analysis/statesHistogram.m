@@ -36,3 +36,9 @@ cdata = stageMat./sum(stageMat,2);
 aux_linkage = linkage(cdata,'average','euclidean');
 [H,T,outperm] = dendrogram(aux_linkage,0);
 
+colors = cdata(outperm,:);
+counts = centroidsHist(outperm,2);
+
+b = bar(states,counts,'CData',colors);
+
+
