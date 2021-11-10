@@ -39,6 +39,12 @@ aux_linkage = linkage(cdata,'average','euclidean');
 colors = cdata(outperm,:);
 counts = centroidsHist(outperm,2);
 
-b = bar(states,counts,'CData',colors);
-
-
+b = bar(states,counts,'FaceColor','flat');
+b.CData = colors;
+xlabel('Latent States');
+ylabel('L2 Normalized Count');
+title('Histogram over the latent states');
+text(latentStates-20,max(counts),'Wake','FontSize',14,'Color',[1 0 0])
+text(latentStates-20,max(counts)-0.03,'NREM','FontSize',14,'Color',[0 1 0])
+text(latentStates-20,max(counts)-0.06,'REM','FontSize',14,'Color',[0 0 1])
+saveas(gcf,'coloredStatesHistogram.png')
