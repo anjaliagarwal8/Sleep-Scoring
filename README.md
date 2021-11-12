@@ -16,5 +16,9 @@ For running the MATLAB code for sleep scoring follow the following steps:
 10. To compute the transition probability matrix, run the ComputeTransitions.m file. This program computes the transition probability matrix along with the directed graph of the unique latent states. The threshold for the occurrence of latent states can be set in this file. The default value is set as 1, i.e. any latent state occurring only once in the given dataset will be removed.
 
 
+#### References
+- Watson, B. O., & Buzsáki, G. (2015). Sleep, Memory & Brain Rhythms. Daedalus, 144(1), 67–82. https://doi.org/10.1162/DAED_a_00318
+- Watson, B. O., Levenstein, D., Greene, J. P., Gelinas, J. N., & Buzsáki, G. (2016). Network Homeostasis and State Dynamics of Neocortical Sleep. Neuron, 90(4), 839–852. https://doi.org/10.1016/j.neuron.2016.03.036
+- Katsageorgiou VM, Sona D, Zanotto M, Lassi G, Garcia-Garcia C, et al. (2018) A novel unsupervised analysis of electrophysiological signals reveals new sleep substages in mice. PLOS Biology 16(5): e2003663. https://doi.org/10.1371/journal.pbio.2003663
+- Ranzato, M., & Hinton, G.E. (2010). Modeling pixel means and covariances using factorized third-order boltzmann machines. 2010 IEEE Computer Society Conference on Computer Vision and Pattern Recognition, 2551-2558.
 
-The features used for Sleep State Clustering are extracted using Sleep Score Master code developed by Buzsaki Lab team. The features are then fed into Restricted Boltzmann Machine for making clusters of various sleep stages. 
