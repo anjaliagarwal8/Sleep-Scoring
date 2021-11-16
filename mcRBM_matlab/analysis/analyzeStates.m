@@ -17,6 +17,11 @@ for l=1:length(uniqueStates)
     idx = find(obsKeys(:,1) == l);
     latent_frames = obsKeys(idx,:);
     
+    % Detect and remove singletons
+    if length(idx) == 1
+        continue
+    end
+    
     %Percentage of wake, nrem, and rem epochs present in each latent state
     len_wake = round((length(find(latent_frames(:,4)==1)))/(length(latent_frames)),3);
     len_nrem = round((length(find(latent_frames(:,4)==2)))/(length(latent_frames)),3);
