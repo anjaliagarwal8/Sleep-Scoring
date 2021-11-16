@@ -26,5 +26,9 @@ for l=1:length(uniqueStates)
         dPlotBand(:,f) = d(idx,f);
     end
     dPlotEMG(:,1) = d(idx,11);
+    subplot(1,3,[1,2])
+    boxplot(dPlotBand)
+    subplot(1,3,3)
+    boxplot(dPlotEMG)
     
 end
