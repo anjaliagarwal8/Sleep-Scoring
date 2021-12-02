@@ -1,5 +1,17 @@
 %% Synthesis of power band features for each band from the raw sleep dataset
 
+clear; close all; clc
+[DataPFC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH52_0.continuous');
+[DataHPC, ~, ~] = load_open_ephys_data_faster('100_CH17_0.continuous');
+% extracting the sampling frequency of the data
+SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
+% Downsample the data to different sampling rates for fast processing
+TargetSampling1 = 1000;                             % The goal sampling
+timesDownSamp1  = SamplingFreq / TargetSampling1;   % Number of times of downsample the data
+lfpPFCDown = decimate(DataPFC,timesDownSamp1,'FIR');
+lfpHPCDown = decimate(DataHPC,timesDownSamp1,'FIR');
+timVect1 = linspace(0,numel(lfpPFCDown)/TargetSampling1,numel(lfpPFCDown));
+
 % Frequency ranges for each band
 f_all = [0.1 24];
 f_delta = [0.5 4];
