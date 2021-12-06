@@ -36,16 +36,30 @@ lfpFeatures = zeros(numEpochs,8);
 for i=1:numEpochs
     lfpPFCEpoch = lfpPFCDown((i-1)*epochSampLen+1:i*epochSampLen);
     lfpHPCEpoch = lfpHPCDown((i-1)*epochSampLen+1:i*epochSampLen);
-
+    
+    % 
     [lfpPFCSpec,f_PFC,t_PFC] = spectrogram(lfpPFCEpoch,window*Fs,noverlap*Fs,FFTfreqs,Fs);
     lfpPFCSpec = (abs(lfpPFCSpec));
-    allpower = sum((lfpPFCSpec),1);
+    
+    % delta power
+    delfreqs = find(f_PFC>=f_delta(1) & f_PFC<=f_delta(2));
+    delpower = sum((lfpPFCSpec(delfreqs,:)),1);
 
+    % theta power
     thfreqs = find(f_FFT>=f_theta(1) & f_FFT<=f_theta(2));
     thpower = sum((FFTspec(thfreqs,:)),1);
     
+    % beta power
 
-    thratio = thpower./allpower;    %Narrowband Theta
+    % Calculating the ratios....
+
+    % Calculating EMG-like signal
+    
+    % 
+    [lfpHPCSpec,f_HPC,t_HPC] = spectrogram(lfpHPCEpoch,window*Fs,noverlap*Fs,FFTfreqs,Fs);
+    lfpHPCSpec = (abs(lfpHPCSpec));
+
+
 end
 
 
