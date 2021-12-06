@@ -15,7 +15,6 @@ timVect1 = linspace(0,numel(lfpPFCDown)/TargetSampling1,numel(lfpPFCDown));
 % Creating epochs for assigning it to various substates later
 epochTimVec = 3.1; %s
 epochSampLen = epochTimVec*TargetSampling1;
-lfpPFCEpoch = 
 
 % Frequency ranges for each band
 f_all = [0.1 24];
@@ -27,15 +26,15 @@ f_beta = [12 23];
 numfreqs = 100;
 FFTfreqs = logspace(log10(f_all(1)),log10(f_all(2)),numfreqs);
 
-Fs = % sampling rate
+Fs = TargetSampling1; % sampling rate
 window = 2;
 noverlap = 0;
 
-[thFFTspec,thFFTfreqs,t_FFT] = spectrogram(data,window*Fs,noverlap*Fs,FFTfreqs,Fs);
-thFFTspec = (abs(thFFTspec));
-[zFFTspec,mu,sig] = zscore(log10(thFFTspec)');
-thfreqs = find(thFFTfreqs>=f_theta(1) & thFFTfreqs<=f_theta(2));
-thpower = sum((thFFTspec(thfreqs,:)),1);
+[FFTspec,f_FFT,t_FFT] = spectrogram(data,window*Fs,noverlap*Fs,FFTfreqs,Fs);
+FFTspec = (abs(FFTspec));
+%[zFFTspec,mu,sig] = zscore(log10(thFFTspec)');
+thfreqs = find(f_FFT>=f_theta(1) & f_FFT<=f_theta(2));
+thpower = sum((FFTspec(thfreqs,:)),1);
 allpower = sum((thFFTspec),1);
 
 thratio = thpower./allpower;    %Narrowband Theta
