@@ -32,11 +32,14 @@ Fs = TargetSampling1; % sampling rate
 window = 2; 
 noverlap = 0;
 
+lfpFeatures = zeros(numEpochs,8);
 for i=1:numEpochs
-    lfpPFCEpoch = lfpPFCDown(1*i:epochSampLen*i);
-    [FFTspec,f_FFT,t_FFT] = spectrogram(data,window*Fs,noverlap*Fs,FFTfreqs,Fs);
-    FFTspec = (abs(FFTspec));
-    allpower = sum((FFTspec),1);
+    lfpPFCEpoch = lfpPFCDown((i-1)*epochSampLen+1:i*epochSampLen);
+    lfpHPCEpoch = lfpHPCDown((i-1)*epochSampLen+1:i*epochSampLen);
+
+    [lfpPFCSpec,f_PFC,t_PFC] = spectrogram(lfpPFCEpoch,window*Fs,noverlap*Fs,FFTfreqs,Fs);
+    lfpPFCSpec = (abs(lfpPFCSpec));
+    allpower = sum((lfpPFCSpec),1);
 
     thfreqs = find(f_FFT>=f_theta(1) & f_FFT<=f_theta(2));
     thpower = sum((FFTspec(thfreqs,:)),1);
