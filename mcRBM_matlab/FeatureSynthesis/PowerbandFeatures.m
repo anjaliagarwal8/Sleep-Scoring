@@ -12,6 +12,11 @@ lfpPFCDown = decimate(DataPFC,timesDownSamp1,'FIR');
 lfpHPCDown = decimate(DataHPC,timesDownSamp1,'FIR');
 timVect1 = linspace(0,numel(lfpPFCDown)/TargetSampling1,numel(lfpPFCDown));
 
+% Creating epochs for assigning it to various substates later
+epochTimVec = 3.1; %s
+epochSampLen = epochTimVec*TargetSampling1;
+lfpPFCEpoch = 
+
 % Frequency ranges for each band
 f_all = [0.1 24];
 f_delta = [0.5 4];
