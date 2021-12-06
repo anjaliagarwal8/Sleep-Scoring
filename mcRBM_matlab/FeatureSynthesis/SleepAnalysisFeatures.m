@@ -32,6 +32,11 @@ Fs = TargetSampling1; % sampling rate
 window = 2; 
 noverlap = 0;
 
+% parameteres for EMG-like signal
+samplingFrequencyEMG = 5;
+smoothWindowEMG = 10;
+matfilename = 'EMGLikeSignalMat';
+
 lfpFeatures = zeros(numEpochs,8);
 for i=1:numEpochs
     lfpPFCEpoch = lfpPFCDown((i-1)*epochSampLen+1:i*epochSampLen);
@@ -52,9 +57,7 @@ for i=1:numEpochs
     % beta power
     betafreqs = find(f_FFT>=f_beta(1) & f_FFT<=f_beta(2));
     betapower = sum((FFTspec(betafreqs,:)),1);
-    
-    % Calculating EMG-like signal
-
+   
     % Calculating the ratios....
     lfpFeatures(i,1) = delpower/thpower;
     lfpFeatures(i,2) = delpower/betapower;
@@ -76,12 +79,14 @@ for i=1:numEpochs
     betafreqs = find(f_FFT>=f_beta(1) & f_FFT<=f_beta(2));
     betapower = sum((FFTspec(betafreqs,:)),1);
     
-    % Calculating EMG-like signal
-
     % Calculating the ratios....
     lfpFeatures(i,5) = delpower/thpower;
     lfpFeatures(i,6) = delpower/betapower;
     lfpFeatures(i,7) = thpower/betapower;
+
+    % Calculating EMG-like signal
+    EMGFromLFP = compute_emg_buzsakiMethod(samplingFrequencyEMG, Fs, lfpPFCEpoch, lfpHPCEpoch, smoothWindowEMG,matfilename);
+
 
 end
 
