@@ -6,7 +6,7 @@ clear; close all; clc
 % extracting the sampling frequency of the data
 SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 % Downsample the data to different sampling rates for fast processing
-TargetSampling1 = 600;                             % The goal sampling
+TargetSampling1 = 1250;                             % The goal sampling
 timesDownSamp1  = SamplingFreq / TargetSampling1;   % Number of times of downsample the data
 lfpPFCDown = decimate(DataPFC,timesDownSamp1,'FIR');
 lfpHPCDown = decimate(DataHPC,timesDownSamp1,'FIR');
@@ -37,7 +37,7 @@ samplingFrequencyEMG = 5;
 smoothWindowEMG = 10;
 matfilename = 'EMGLikeSignalMat';
 
-lfpFeatures = zeros(numEpochs,8);
+lfpFeatures = zeros(numEpochs,7);
 for i=1:numEpochs
     lfpPFCEpoch = lfpPFCDown((i-1)*epochSampLen+1:i*epochSampLen);
     lfpHPCEpoch = lfpHPCDown((i-1)*epochSampLen+1:i*epochSampLen);
@@ -80,15 +80,17 @@ for i=1:numEpochs
     betapower = sum((FFTspec(betafreqs,:)),1);
     
     % Calculating the ratios....
-    lfpFeatures(i,5) = delpower/thpower;
-    lfpFeatures(i,6) = delpower/betapower;
-    lfpFeatures(i,7) = thpower/betapower;
+    lfpFeatures(i,4) = delpower/thpower;
+    lfpFeatures(i,5) = delpower/betapower;
+    lfpFeatures(i,6) = thpower/betapower;
 
     % Calculating EMG-like signal
     EMGFromLFP = compute_emg_buzsakiMethod(samplingFrequencyEMG, Fs, lfpPFCEpoch, lfpHPCEpoch, smoothWindowEMG,matfilename);
+    EMGSig = mean(EMGFromLFP.smoothed);
 
-
+    lfpFeatures(i,7) = EMGSig;
 end
 
+save Features.mat lfpFeatures
 
     
