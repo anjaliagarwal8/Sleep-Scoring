@@ -86,6 +86,7 @@ for i=1:numEpochs
 
     % Calculating EMG-like signal
     EMGFromLFP = compute_emg_buzsakiMethod(samplingFrequencyEMG, Fs, lfpPFCEpoch, lfpHPCEpoch, smoothWindowEMG,matfilename);
+    % Integrating the EMG signal for each epoch
     EMGSig = trapz(EMGFromLFP.smoothed);
 
     lfpFeatures(i,7) = EMGSig;
@@ -97,4 +98,7 @@ save Features.mat lfpFeatures
 % feature
 [PreprocessedFeatures,~,~] = zscore(log(lfpFeatures));
 
+save PreprocessedFeatures.mat PreprocessedFeatures
     
+% States
+States = load('2019-06-06_13-26-20_Post-Trial3-states.mat');
