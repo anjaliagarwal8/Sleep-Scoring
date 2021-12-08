@@ -6,7 +6,7 @@ clear; close all; clc
 % extracting the sampling frequency of the data
 SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 % Downsample the data to different sampling rates for fast processing
-TargetSampling1 = 1250;                             % The goal sampling
+TargetSampling1 = 1250;                             % The goal sampling rate
 timesDownSamp1  = SamplingFreq / TargetSampling1;   % Number of times of downsample the data
 lfpPFCDown = decimate(DataPFC,timesDownSamp1,'FIR');
 lfpHPCDown = decimate(DataHPC,timesDownSamp1,'FIR');
@@ -43,19 +43,19 @@ for i=1:numEpochs
     lfpHPCEpoch = lfpHPCDown((i-1)*epochSampLen+1:i*epochSampLen);
     
     % 
-    [FFTspec,f_FFT,t_FFT] = spectrogram(lfpPFCEpoch,window*Fs,noverlap*Fs,FFTfreqs,Fs);
+    [FFTspec,f_FFT,~] = spectrogram(lfpPFCEpoch,window*Fs,noverlap*Fs,FFTfreqs,Fs);
     FFTspec = (abs(FFTspec));
     
     % delta power
-    delfreqs = find(f_FFT>=f_delta(1) & f_FFT<=f_delta(2));
+    delfreqs = f_FFT>=f_delta(1) & f_FFT<=f_delta(2);
     delpower = sum((FFTspec(delfreqs,:)),1);
 
     % theta power
-    thfreqs = find(f_FFT>=f_theta(1) & f_FFT<=f_theta(2));
+    thfreqs = f_FFT>=f_theta(1) & f_FFT<=f_theta(2);
     thpower = sum((FFTspec(thfreqs,:)),1);
     
     % beta power
-    betafreqs = find(f_FFT>=f_beta(1) & f_FFT<=f_beta(2));
+    betafreqs = f_FFT>=f_beta(1) & f_FFT<=f_beta(2);
     betapower = sum((FFTspec(betafreqs,:)),1);
    
     % Calculating the ratios....
@@ -86,11 +86,15 @@ for i=1:numEpochs
 
     % Calculating EMG-like signal
     EMGFromLFP = compute_emg_buzsakiMethod(samplingFrequencyEMG, Fs, lfpPFCEpoch, lfpHPCEpoch, smoothWindowEMG,matfilename);
-    EMGSig = mean(EMGFromLFP.smoothed);
+    EMGSig = trapz(EMGFromLFP.smoothed);
 
     lfpFeatures(i,7) = EMGSig;
 end
 
 save Features.mat lfpFeatures
+
+% Preprocessing the features by taking log and zeroing the mean of each
+% feature
+
 
     
