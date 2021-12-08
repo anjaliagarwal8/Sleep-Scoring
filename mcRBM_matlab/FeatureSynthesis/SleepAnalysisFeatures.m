@@ -95,6 +95,6 @@ save Features.mat lfpFeatures
 
 % Preprocessing the features by taking log and zeroing the mean of each
 % feature
-
+[PreprocessedFeatures,~,~] = zscore(log(lfpFeatures));
 
     
