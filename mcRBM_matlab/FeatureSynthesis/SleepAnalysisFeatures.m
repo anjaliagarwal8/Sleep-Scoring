@@ -100,5 +100,101 @@ save Features.mat lfpFeatures
 
 save PreprocessedFeatures.mat PreprocessedFeatures
     
-% States
+% Manually scored states
 States = load('2019-06-06_13-26-20_Post-Trial3-states.mat');
+downsampledStates = downsample(States.states,25);
+downsampledStates(1,110) = 1; 
+
+state_0 = downsampledStates == 0;
+state_1 = downsampledStates == 1;
+state_2 = downsampledStates == 2;
+state_3 = downsampledStates == 3;
+state_4 = downsampledStates == 4;
+state_5 = downsampledStates == 5;
+
+Features_0 = PreprocessedFeatures(state_0,:);
+Features_1 = PreprocessedFeatures(state_1,:);
+Features_2 = PreprocessedFeatures(state_2,:);
+Features_3 = PreprocessedFeatures(state_3,:);
+Features_4 = PreprocessedFeatures(state_4,:);
+Features_5 = PreprocessedFeatures(state_5,:);
+
+[status, msg, msgID] = mkdir('FeatureHistograms');
+cd FeatureHistograms
+
+histogram(Features_1(:,1))
+hold on
+histogram(Features_3(:,1))
+hold on
+histogram(Features_4(:,1))
+hold on
+histogram(Features_5(:,1))
+legend('WAKE','NREM','NREM-REM','REM')
+title('Ch2__del__theta')
+saveas(gcf,'Ch2_del_theta.png')
+
+histogram(Features_1(:,2))
+hold on
+histogram(Features_3(:,2))
+hold on
+histogram(Features_4(:,2))
+hold on
+histogram(Features_5(:,2))
+legend('WAKE','NREM','NREM-REM','REM')
+title('Ch2__del__beta')
+saveas(gcf,'Ch2_del_beta.png')
+
+histogram(Features_1(:,3))
+hold on
+histogram(Features_3(:,3))
+hold on
+histogram(Features_4(:,3))
+hold on
+histogram(Features_5(:,3))
+legend('WAKE','NREM','NREM-REM','REM')
+title('Ch2__theta__beta')
+saveas(gcf,'Ch2_theta_beta.png')
+
+histogram(Features_1(:,4))
+hold on
+histogram(Features_3(:,4))
+hold on
+histogram(Features_4(:,4))
+hold on
+histogram(Features_5(:,4))
+legend('WAKE','NREM','NREM-REM','REM')
+title('Ch53__del__theta')
+saveas(gcf,'Ch53_del_theta.png')
+
+histogram(Features_1(:,5))
+hold on
+histogram(Features_3(:,5))
+hold on
+histogram(Features_4(:,5))
+hold on
+histogram(Features_5(:,5))
+legend('WAKE','NREM','NREM-REM','REM')
+title('Ch53__del__beta')
+saveas(gcf,'Ch53_del_beta.png')
+
+histogram(Features_1(:,6))
+hold on
+histogram(Features_3(:,6))
+hold on
+histogram(Features_4(:,6))
+hold on
+histogram(Features_5(:,6))
+legend('WAKE','NREM','NREM-REM','REM')
+title('Ch53__theta__beta')
+saveas(gcf,'Ch53_theta_beta.png')
+
+histogram(Features_1(:,7))
+hold on
+histogram(Features_3(:,7))
+hold on
+histogram(Features_4(:,7))
+hold on
+histogram(Features_5(:,7))
+legend('WAKE','NREM','NREM-REM','REM')
+title('EMG-like')
+saveas(gcf,'EMG-like.png')
