@@ -6,7 +6,8 @@ variables = load('variables.mat');
 
 % Load Data
 d = visData.visData;
-obsKeys = visData.obsKeys;
+%obsKeys = visData.obsKeys;
+states = load('states.mat').downsampledStates';
 
 % Load latent variables
 W = variables.W;
@@ -90,15 +91,15 @@ sum(uniqueAct,1)
 
 % Saving the above information for further analysis
 uniqueStates = zeros(size(uniqueAct,1),size(uniqueAct,2)+2);
-obsKeys = [zeros(size(obsKeys,1),1) obsKeys];
+states = [zeros(size(states,1),1) states];
 for i=1:size(uniqueAct,1)
     uniqueStates(i,1) = i;
     uniqueStates(i,2) = uniqueCount(i);
     uniqueStates(i,3:size(uniqueStates,2)) = uniqueAct(i,:);
     
     RowIdx = find(ismember(binary_latentActivation, uniqueAct(i,:),'rows'));
-    obsKeys(RowIdx,1) = i;
+    states(RowIdx,1) = i;
 end
 
 save uniqueStates.mat uniqueStates p_unique
-save obsKeys.mat obsKeys
+save inferredStates.mat states
