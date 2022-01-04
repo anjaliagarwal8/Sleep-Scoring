@@ -2,17 +2,17 @@
 % reordering it for visualization.
 
 load uniqueStates.mat
-load obsKeys.mat
+load inferredStates.mat
 load stageDistributionMat.mat
 
 [status, msg, msgID] = mkdir('statesHistogram');
 cd statesHistogram
 
 latentStates = length(uniqueStates);
-states = uniqueStates(:,1);
+truestates = uniqueStates(:,1);
 frames = uniqueStates(:,2);
 
-bar(states,frames)
+bar(truestates,frames)
 xlabel('Latent States')
 ylabel('Number of Frames')
 saveas(gcf,'statesHistogram.png')
@@ -39,7 +39,7 @@ aux_linkage = linkage(cdata,'average','euclidean');
 colors = cdata(outperm,:);
 counts = centroidsHist(outperm,2);
 
-b = bar(states,counts,'FaceColor','flat');
+b = bar(truestates,counts,'FaceColor','flat');
 b.CData = colors;
 xlabel('Latent States');
 ylabel('L2 Normalized Count');
