@@ -1,21 +1,23 @@
 %% Method visualizing the boxplots of the LOG initial EEG/EMG 
 % data mapping to each latent state.
-load data.mat
+load PreprocessedFeatures.mat
 load uniqueStates.mat
-load obsKeys.mat
+load inferredStates.mat
 
+d = PreprocessedFeatures;
 % Power Band ratio feature (Edit According to features present in the data)
-powerband_features = ["delta_theta","delta_alpha","delta_beta","delta_gamma",...
-    "theta_alpha","theta_beta","theta_gamma","alpha_beta","alpha_gamma","beta_gamma"];
-band_range = [floor(min(d(:,1:10))); ceil(max(d(:,1:10)))];
-emg_range = [floor(min(d(:,11))); ceil(max(d(:,11)))];
+%powerband_features = ["Ch2__del__theta","Ch2__del__beta","Ch2__theta__beta","Ch53__del__theta","Ch53__del__beta","Ch53__theta__beta"];
+powerband_features = ["del__theta","del__beta","theta__beta"];
+
+band_range = [floor(min(d(:,1:3))); ceil(max(d(:,1:3)))];
+emg_range = [floor(min(d(:,4))); ceil(max(d(:,4)))];
 
 [status, msg, msgID] = mkdir('BoxPlots');
 cd BoxPlots
 
 for l=1:length(uniqueStates)
-    idx = find(obsKeys(:,1) == l);
-    latent_frames = obsKeys(idx,:);
+    idx = find(states(:,1) == l);
+    latent_frames = states(idx,:);
     
     % Detect and remove singletons
     if length(idx) == 1
@@ -23,9 +25,10 @@ for l=1:length(uniqueStates)
     end
     
     %Percentage of wake, nrem, and rem epochs present in each latent state
-    len_wake = round((length(find(latent_frames(:,4)==1)))/(length(latent_frames)),3);
-    len_nrem = round((length(find(latent_frames(:,4)==2)))/(length(latent_frames)),3);
-    len_rem = round((length(find(latent_frames(:,4)==3)))/(length(latent_frames)),3);
+    len_wake = round((length(find(latent_frames(:,2)==1)))/(length(latent_frames)),3);
+    len_nrem = round((length(find(latent_frames(:,2)==3)))/(length(latent_frames)),3);
+    len_nremtorem = round((length(find(latent_frames(:,2)==4)))/(length(latent_frames)),3);
+    len_rem = round((length(find(latent_frames(:,2)==5)))/(length(latent_frames)),3);
     
     % Extracting Power Band and EMG Values from the epochs belonging to
     % specific latent states 
@@ -34,7 +37,7 @@ for l=1:length(uniqueStates)
     for f=1:length(powerband_features)
         dPlotBand(:,f) = d(idx,f);
     end
-    dPlotEMG(:,1) = d(idx,11);
+    dPlotEMG(:,1) = d(idx,7);
     
     %Plotting the Box Plots for Power Bands and EMG Signal for each latent
     %state
@@ -44,7 +47,7 @@ for l=1:length(uniqueStates)
     ylabel('Log Power')
     title(['LS ',num2str(l),' - ',num2str(length(latent_frames)),' epochs',...
         newline,'WAKE: ',num2str(len_wake*100),'% ,NREM: ',num2str(len_nrem*100),...
-        '% ,REM: ',num2str(len_rem*100),'%'])
+        '% ,NREM-REM: ',num2str(len_nremtorem*100),'% ,REM: ',num2str(len_rem*100),'%'])
     
     subplot(1,3,3)
     boxplot(dPlotEMG)
