@@ -5,13 +5,14 @@ clc
 
 %% Training data
 
-sampleData = load('data.mat');
-d = sampleData.d;
-obsKeys = sampleData.epochsLinked;
-epochTime = sampleData.epochTime;
+load 'PreprocessedFeatures.mat';
+d = PreprocessedFeatures;
+%d = sampleData.d;
+%obsKeys = sampleData.epochsLinked;
+%epochTime = sampleData.epochTime;
 
 totnumcases = size(d,1);
-batch_size = 256;
+batch_size = totnumcases;
 % extracts a subset of the rows of the data matrix. The objective is 
 % obtaining a data matrix which can be divided in batches of the 
 % selected size with no row left out
