@@ -1,24 +1,26 @@
 %% Compute each latent state's PDF according to how many epochs were manually 
 % labeled as Wakefulness, NREM, REM. This can be visualized with an RGB color shade.
 
-load obsKeys.mat
+load inferredStates.mat
 load uniqueStates.mat
 
 % computing the probability of each latent state to belong to each of the 3 sleep stages
-latentStates = length(uniqueStates);
-stageMat = zeros(latentStates,3);
+latentStates = size(uniqueStates,1);
+stageMat = zeros(latentStates,4);
 
 for l=1:latentStates
-    idx = find(obsKeys(:,1) == l);
+    idx = find(states(:,1) == l);
     statePopulation = length(idx);
     
-    length_wake = length(find(obsKeys(idx,4)==1));
-    length_nrem = length(find(obsKeys(idx,4)==2));
-    length_rem = length(find(obsKeys(idx,4)==3));
+    length_wake = length(find(states(idx,2)==1));
+    length_nrem = length(find(states(idx,2)==3));
+    length_nremtorem = length(find(states(idx,2)==4));
+    length_rem = length(find(states(idx,2)==5));
     
     stageMat(l,1) = length_wake;
     stageMat(l,2) = length_nrem;
-    stageMat(l,3) = length_rem;
+    stageMat(l,3) = length_nremtorem;
+    stageMat(l,4) = length_rem;
 end
 
 [status, msg, msgID] = mkdir('StageDistribution');
@@ -34,7 +36,7 @@ cdata = stageMat./sum(stageMat,2);
 aux_linkage = linkage(cdata,'average','euclidean');
 [H,T,outperm] = dendrogram(aux_linkage,0);
 
-heatmap({'WAKE','NREM','REM'},outperm,cdata(outperm,:),'GridVisible','off');
+heatmap({'WAKE','NREM','NREM-REM','REM'},outperm,cdata(outperm,:),'GridVisible','off');
 colormap 'turbo'
 ylabel('Latent States')
 title('HeatMap')
