@@ -48,6 +48,7 @@ end
 thratio = bz_NormToRange(thratio,[0 1]);
 
 ThetaBand.data = thratio;
+ThetaBand.spec = thFFTspec;
 ThetaBand.timestamps = t_thclu;
 ThetaBand.freqs = thFFTfreqs;
 
