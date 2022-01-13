@@ -45,6 +45,7 @@ end
 broadbandSlowWave = bz_NormToRange(broadbandSlowWave,[0 1]);
 
 DeltaBand.data = broadbandSlowWave;
+DeltaBand.spec = swFFTspec;
 DeltaBand.timestamps = t_clus;
 DeltaBand.freqs = swFFTfreqs;
 
