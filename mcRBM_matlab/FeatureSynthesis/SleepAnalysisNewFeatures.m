@@ -22,7 +22,8 @@ ThetaBandPFC = compute_theta_buzsakiMethod(lfpPFCDown,timVect,TargetSampling,'Th
 ThetaBandHPC = compute_theta_buzsakiMethod(lfpHPCDown,timVect,TargetSampling,'ThetaBandHPCMat');
 %% beta wave
 
-
+BetaBandPFC = compute_beta_buzsakiMethod(lfpPFCDown,timVect,TargetSampling,'BetaBandPFCMat');
+BetaBandHPC = compute_beta_buzsakiMethod(lfpHPCDown,timVect,TargetSampling,'BetaBandHPCMat');
 %% EMGlike Signal
 samplingFrequencyEMG = 5;
 smoothWindowEMG = 10;
@@ -45,10 +46,14 @@ EMG = bz_NormToRange(EMG,[0 1]);
 %% Combining and saving the feature matrix
 matfilename = 'LFPBuzFeatures';
 lfpFeatures = zeros(length(EMG),7);
-lfpFeatures(1,:) = DeltaBandPFC.data;
-lfpFeatures(2,:) = DeltaBandPFC.data;
-lfpFeatures(3,:) = ThetaBandPFC.data;
-lfpFeatures(4,:) = ThetaBandHPC.data;
-lfpFeatures(5,:) = 
-lfpFeatures(6,:) = 
-lfpFeatures(7,:) = EMG;
+lfpFeatures(:,1) = DeltaBandPFC.data;
+lfpFeatures(:,2) = DeltaBandHPC.data;
+lfpFeatures(:,3) = ThetaBandPFC.data;
+lfpFeatures(:,4) = ThetaBandHPC.data;
+lfpFeatures(:,5) = BetaBandPFC.data;
+lfpFeatures(:,6) = BetaBandHPC.data;
+lfpFeatures(:,7) = EMG;
+
+%% Plotting the features for further analysis
+FeaturePlots(DeltaBandPFC,ThetaBandPFC,BetaBandPFC,EMG,'PFC')
+FeaturePlots(DeltaBandHPC,ThetaBandHPC,BetaBandHPC,EMG,'HPC')
