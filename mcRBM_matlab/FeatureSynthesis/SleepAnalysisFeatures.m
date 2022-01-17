@@ -102,8 +102,8 @@ save PreprocessedFeatures.mat PreprocessedFeatures
     
 % Manually scored states
 States = load('2019-06-06_13-26-20_Post-Trial3-states.mat');
-downsampledStates = downsample(States.states,25);
-downsampledStates(1,110) = 1; 
+downsampledStates = downsample(States.states,8);
+%downsampledStates(1,110) = 1; 
 
 save states.mat downsampledStates
 
