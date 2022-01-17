@@ -1,8 +1,8 @@
 %% Synthesis of power band features for each band from the raw sleep dataset
 
 clear; close all; clc
-[DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2_0.continuous');
-[DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH53_0.continuous');
+[DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2.continuous');
+[DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH33.continuous');
 % extracting the sampling frequency of the data
 SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 % Downsample the data to different sampling rates for fast processing
@@ -44,16 +44,26 @@ EMG = interp1(EMGFromLFP.timestamps,EMGFromLFP.smoothed,DeltaBandPFC.timestamps,
 EMG = bz_NormToRange(EMG,[0 1]);
 
 %% Combining and saving the feature matrix
-matfilename = 'LFPBuzFeatures';
-lfpFeatures = zeros(length(EMG),7);
+matfilename = 'LFPBuzFeatures4';
+lfpFeatures = zeros(length(EMG),4);
 lfpFeatures(:,1) = DeltaBandPFC.data;
-lfpFeatures(:,2) = DeltaBandHPC.data;
-lfpFeatures(:,3) = ThetaBandPFC.data;
-lfpFeatures(:,4) = ThetaBandHPC.data;
-lfpFeatures(:,5) = BetaBandPFC.data;
-lfpFeatures(:,6) = BetaBandHPC.data;
-lfpFeatures(:,7) = EMG;
+%lfpFeatures(:,2) = DeltaBandHPC.data;
+%lfpFeatures(:,3) = ThetaBandPFC.data;
+lfpFeatures(:,2) = ThetaBandHPC.data;
+lfpFeatures(:,3) = BetaBandPFC.data;
+%lfpFeatures(:,6) = BetaBandHPC.data;
+lfpFeatures(:,4) = EMG;
 
+save(matfilename,'lfpFeatures')
 %% Plotting the features for further analysis
+[status, msg, msgID] = mkdir('FeaturePlots');
+cd FeaturePlots
 FeaturePlots(DeltaBandPFC,ThetaBandPFC,BetaBandPFC,EMG,'PFC')
 FeaturePlots(DeltaBandHPC,ThetaBandHPC,BetaBandHPC,EMG,'HPC')
+
+cd ../
+%% Downsampling the scored states to match with the features
+States = load('post_trial1_2018-02-16_11-34-47-states.mat');
+%downsampledStates = downsample(States.states,8);
+downsampledStates = States.states(1:2699);
+save states.mat downsampledStates
