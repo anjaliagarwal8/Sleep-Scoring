@@ -24,9 +24,9 @@ function [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(X,W,VF,
     small = 0.5;
     normVF = 1;
     negdata = randn(num_vis,batch_size,'single');
-    meanEnergy = zeros(num_epochs,1);
-    minEnergy = zeros(num_epochs,1);
-    maxEnergy = zeros(num_epochs,1);
+%     meanEnergy = zeros(num_epochs,1);
+%     minEnergy = zeros(num_epochs,1);
+%     maxEnergy = zeros(num_epochs,1);
     
     for t=0:num_epochs-1
         % Anneal learning rates
