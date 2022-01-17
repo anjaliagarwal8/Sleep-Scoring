@@ -5,11 +5,8 @@ clc
 
 %% Training data
 
-load 'PreprocessedFeatures.mat';
-d = PreprocessedFeatures;
-%d = sampleData.d;
-%obsKeys = sampleData.epochsLinked;
-%epochTime = sampleData.epochTime;
+load 'LFPBuzFeatures4.mat';
+d = lfpFeatures;
 
 totnumcases = size(d,1);
 batch_size = totnumcases;
@@ -17,15 +14,15 @@ batch_size = totnumcases;
 % obtaining a data matrix which can be divided in batches of the 
 % selected size with no row left out
 d = d(1:(floor(totnumcases/batch_size)*batch_size),:);
-obsKeys = obsKeys(1:(floor(totnumcases/batch_size)*batch_size),:);
-epochTime = epochTime(1:(floor(totnumcases/batch_size)*batch_size),:);
+%obsKeys = obsKeys(1:(floor(totnumcases/batch_size)*batch_size),:);
+%epochTime = epochTime(1:(floor(totnumcases/batch_size)*batch_size),:);
 %% preprocess
 
 dMinRow = min(d);
 dMaxRow = max(d);
 data = 10.*((d - dMinRow) ./ (dMaxRow - dMinRow) - 0.5);
 visData = data;
-save visData.mat visData obsKeys epochTime
+save visData.mat visData 
 
 permIdx = randperm(size(data,1));
 data = data(permIdx,:);
@@ -35,9 +32,13 @@ data = data(permIdx,:);
 load input_configuration
 num_epochs = 10000;
 
+batch_size = totnumcases;
 totnumcases = size(data,1);
 num_vis =  size(data,2);       
 num_batches = totnumcases/batch_size;
+num_fac = size(data,2);
+num_hid_cov = size(data,2);
+num_hid_mean = size(data,2) - 1;
 
 % training parameters
 epsilonVF = 2*epsilon;
@@ -59,3 +60,6 @@ hmc_ave_rej =  hmc_target_ave_rej;
 data = data';
 [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final,apply_mask);
 
+%% Analysis of the latent states and final weights
+
+GetAnalysisResults();
