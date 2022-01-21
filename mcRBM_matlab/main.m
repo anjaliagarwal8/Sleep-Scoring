@@ -1,12 +1,17 @@
 clear
 clc
+
 %% Main program to execute mean-covariance Restricted Boltzmann Machines (mcRBM)
 % Here parameters and data can be initialized
+[DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2.continuous');
+[DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH33.continuous');
+% extracting the sampling frequency of the data
+SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 
 %% Training data
 
-load 'LFPBuzFeatures4.mat';
-d = lfpFeatures;
+lfpFeatures = load('LFPBuzFeatures4.mat');
+d = lfpFeatures.lfpFeatures;
 
 totnumcases = size(d,1);
 batch_size = totnumcases;
