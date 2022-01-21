@@ -1,10 +1,7 @@
+function lfpFeatures = GetLFPFeatures(DataHPC,DataPFC,samplingrate,TargetSampling, ...
+    scoredstates)
 %% Synthesis of power band features for each band from the raw sleep dataset
 
-clear; close all; clc
-[DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2.continuous');
-[DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH33.continuous');
-% extracting the sampling frequency of the data
-SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 % Downsample the data to different sampling rates for fast processing
 TargetSampling = 1250;                             % The goal sampling rate
 timesDownSamp  = SamplingFreq / TargetSampling;   % Number of times of downsample the data
