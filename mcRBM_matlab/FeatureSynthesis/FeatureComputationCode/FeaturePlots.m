@@ -1,7 +1,7 @@
 function FeaturePlots(DeltaBand, ThetaBand, BetaBand, EMG, channelname)
 % function to plot the spectrogram of powerband features and time domain
 % plot of the features.
-% DeltaBand, ThetaBand, BetaBand --> powerband features in the struc format
+% DeltaBand, ThetaBand, BetaBand, GammaBand --> powerband features in the struc format
 % with values timestamps, spec, freqs, data
 % EMG --> smoothed EMG signal 
 % channelname --> channel which is being used to compute the features (PFC
