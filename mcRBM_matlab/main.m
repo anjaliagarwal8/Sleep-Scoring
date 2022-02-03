@@ -3,14 +3,16 @@ clc
 
 %% Main program to execute mean-covariance Restricted Boltzmann Machines (mcRBM)
 % Here parameters and data can be initialized
-[DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2.continuous');
-[DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH33.continuous');
-% extracting the sampling frequency of the data
-SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
+% [DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2.continuous');
+% [DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH33.continuous');
+% % extracting the sampling frequency of the data
+% SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 
+[status, msg, msgID] = mkdir('AnalysisResults');
+cd AnalysisResults
 %% Training data
 
-lfpFeatures = load('LFPBuzFeatures4.mat');
+lfpFeatures = load('LFPBuzFeatures4_long_g.mat');
 d = lfpFeatures.lfpFeatures;
 
 totnumcases = size(d,1);
@@ -64,7 +66,18 @@ hmc_ave_rej =  hmc_target_ave_rej;
 
 data = data';
 [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final,apply_mask);
+variables.W = W;
+variables.VF = VF;
+variables.FH = FH;
+variables.vb = vb;
+variables.hb_cov = hb_cov;
+variables.hb_mean = hb_mean;
 
 %% Analysis of the latent states and final weights
 
-GetAnalysisResults();
+states = load('states.mat');
+states = states.downsampledStates;
+[uniqueStates,inferredStates] = InferStates(visData,variables,states);
+AnalyzeStates(lfpFeatures,uniqueStates,inferredStates);
+[stageMat] = StageDistribution(uniqueStates,inferredStates);
+StatesHistogram(uniqueStates,inferredStates,stageMat);
