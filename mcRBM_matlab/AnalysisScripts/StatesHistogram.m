@@ -1,13 +1,6 @@
+function StatesHistogram(uniqueStates,inferredStates,stageMat)
 %% Method computing the histogram over the desired latent states &
 % reordering it for visualization.
-
-uniqueStates = load('uniqueStates.mat');
-inferredStates = load('inferredStates.mat');
-stageMat = load('stageDistributionMat.mat');
-
-uniqueStates = uniqueStates.uniqueStates;
-states = inferredStates.states;
-stageMat = stageMat.stageMat;
 
 [status, msg, msgID] = mkdir('statesHistogram');
 cd statesHistogram
