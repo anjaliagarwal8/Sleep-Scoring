@@ -1,13 +1,8 @@
-function AnalyzeStates()
+function AnalyzeStates(lfpFeatures,uniqueStates,inferredStates)
 %% Method visualizing the boxplots of the LOG initial EEG/EMG 
 % data mapping to each latent state.
-lfpFeatures = load('LFPBuzFeatures4.mat');
-uniqueStates = load('uniqueStates.mat');
-inferredStates = load('inferredStates.mat');
 
 d = lfpFeatures.lfpFeatures;
-uniqueStates = uniqueStates.uniqueStates;
-states = inferredStates.states;
 
 % Power Band ratio feature
 powerband_features = strings(size(d,2)-1,1);
@@ -22,8 +17,8 @@ emg_range = [floor(min(d(:,size(d,2)))); ceil(max(d(:,size(d,2))))];
 cd BoxPlots
 
 for l=1:length(uniqueStates)
-    idx = find(states(:,1) == l);
-    latent_frames = states(idx,:);
+    idx = find(inferredStates(:,1) == l);
+    latent_frames = inferredStates(idx,:);
     
     % Detect and remove singletons
     if length(idx) == 1
