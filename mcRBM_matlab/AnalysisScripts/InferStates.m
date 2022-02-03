@@ -1,12 +1,5 @@
-function InferStates()
+function [uniqueStates,inferredStates] = InferStates(visData,variables,states)
 % Script written for inferring the unique latent states from a trained mcRBM model.
-
-% Load Data
-visData = load('visData.mat');
-variables = load('variables.mat');
-states = load('states.mat');
-d = visData.visData;
-states = states.downsampledStates';
 
 % Load latent variables
 W = variables.W;
@@ -19,12 +12,12 @@ hb_mean = variables.hb_mean;
 % Compute the probabilities of the covariance units (normalize data for
 % covariance hidden)
         
-dsq = d.^2;
+dsq = visData.^2;
 lsq = sum(dsq);
-lsq = lsq./size(d,2);
+lsq = lsq./size(visData,2);
 lsq = lsq + eps(1);
 l = sqrt(lsq);
-normD = d./l;
+normD = visData./l;
 
 % Compute logistic_covariance_argument
 logisticArg_c = (((FH'*((VF'*normD').^2)).* (-0.5)) + hb_cov)';
@@ -33,7 +26,7 @@ logisticArg_c = (((FH'*((VF'*normD').^2)).* (-0.5)) + hb_cov)';
 p_hc = sigmoid(logisticArg_c);
 
 % compute logistic_mean_argument (use unnormalised data for mean hidden)
-logisticArg_m = d*W + hb_mean';
+logisticArg_m = visData*W + hb_mean';
 
 % compute hidden_mean probabilities
 p_hm = sigmoid(logisticArg_m);
@@ -93,17 +86,17 @@ sum(uniqueAct,1)
 
 % Saving the above information for further analysis
 uniqueStates = zeros(size(uniqueAct,1),size(uniqueAct,2)+2);
-states = [zeros(size(states,1),1) states];
+inferredStates = [zeros(size(states',1),1) states'];
 for i=1:size(uniqueAct,1)
     uniqueStates(i,1) = i;
     uniqueStates(i,2) = uniqueCount(i);
     uniqueStates(i,3:size(uniqueStates,2)) = uniqueAct(i,:);
     
     RowIdx = find(ismember(binary_latentActivation, uniqueAct(i,:),'rows'));
-    states(RowIdx,1) = i;
+    inferredStates(RowIdx,1) = i;
 end
 
 save uniqueStates.mat uniqueStates p_unique
-save inferredStates.mat states
+save inferredStates.mat inferredStates
 
 cd ../
