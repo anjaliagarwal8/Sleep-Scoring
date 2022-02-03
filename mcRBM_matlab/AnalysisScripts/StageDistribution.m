@@ -1,25 +1,19 @@
-function StageDistribution()
+function [stageMat] = StageDistribution(uniqueStates,inferredStates)
 %% Compute each latent state's PDF according to how many epochs were manually 
 % labeled as Wakefulness, NREM, REM. This can be visualized with an RGB color shade.
-
-uniqueStates = load('uniqueStates.mat');
-inferredStates = load('inferredStates.mat');
-
-uniqueStates = uniqueStates.uniqueStates;
-states = inferredStates.states;
 
 % computing the probability of each latent state to belong to each of the 3 sleep stages
 latentStates = size(uniqueStates,1);
 stageMat = zeros(latentStates,4);
 
 for l=1:latentStates
-    idx = find(states(:,1) == l);
+    idx = find(inferredStates(:,1) == l);
     statePopulation = length(idx);
     
-    length_wake = length(find(states(idx,2)==1));
-    length_nrem = length(find(states(idx,2)==3));
-    length_nremtorem = length(find(states(idx,2)==4));
-    length_rem = length(find(states(idx,2)==5));
+    length_wake = length(find(inferredStates(idx,2)==1));
+    length_nrem = length(find(inferredStates(idx,2)==3));
+    length_nremtorem = length(find(inferredStates(idx,2)==4));
+    length_rem = length(find(inferredStates(idx,2)==5));
     
     stageMat(l,1) = length_wake;
     stageMat(l,2) = length_nrem;
