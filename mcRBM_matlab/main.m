@@ -76,7 +76,6 @@ variables.hb_mean = hb_mean;
 %% Analysis of the latent states and final weights
 
 states = load('states.mat');
-states = states.downsampledStates;
 [uniqueStates,inferredStates] = InferStates(visData,variables,states);
 AnalyzeStates(lfpFeatures,uniqueStates,inferredStates);
 [stageMat] = StageDistribution(uniqueStates,inferredStates);
