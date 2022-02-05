@@ -25,11 +25,12 @@ for l=1:length(uniqueStates)
         continue
     end
     
-    %Percentage of wake, nrem, and rem epochs present in each latent state
+    %Percentage of main sleep state epochs present in each latent state
     % wake = 1
     % nrem = 3
     % nrem to rem = 4
     % rem = 5
+    state_len = zeros();
     len_wake = round((length(find(latent_frames(:,2)==1)))/(length(latent_frames)),3);
     len_nrem = round((length(find(latent_frames(:,2)==3)))/(length(latent_frames)),3);
     len_nremtorem = round((length(find(latent_frames(:,2)==4)))/(length(latent_frames)),3);
