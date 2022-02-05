@@ -86,7 +86,7 @@ sum(uniqueAct,1)
 
 % Saving the above information for further analysis
 uniqueStates = zeros(size(uniqueAct,1),size(uniqueAct,2)+2);
-inferredStates = [zeros(size(states',1),1) states'];
+inferredStates = [zeros(size(states,1),1) states];
 for i=1:size(uniqueAct,1)
     uniqueStates(i,1) = i;
     uniqueStates(i,2) = uniqueCount(i);
