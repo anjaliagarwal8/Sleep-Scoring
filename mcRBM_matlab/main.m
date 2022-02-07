@@ -77,6 +77,6 @@ variables.hb_mean = hb_mean;
 
 states = load('states.mat');
 [uniqueStates,inferredStates] = InferStates(visData,variables,states);
-AnalyzeStates(lfpFeatures,uniqueStates,inferredStates);
-[stageMat] = StageDistribution(uniqueStates,inferredStates);
+AnalyzeStates(lfpFeatures,uniqueStates,inferredStates,states);
+[stageMat] = StageDistribution(uniqueStates,inferredStates,states);
 StatesHistogram(uniqueStates,inferredStates,stageMat);
