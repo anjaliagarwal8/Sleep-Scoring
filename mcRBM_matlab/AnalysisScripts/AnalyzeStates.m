@@ -1,4 +1,4 @@
-function AnalyzeStates(lfpFeatures,uniqueStates,inferredStates)
+function AnalyzeStates(lfpFeatures,uniqueStates,inferredStates,states)
 %% Method visualizing the boxplots of the LOG initial EEG/EMG 
 % data mapping to each latent state.
 
@@ -30,11 +30,12 @@ for l=1:length(uniqueStates)
     % nrem = 3
     % nrem to rem = 4
     % rem = 5
-    state_len = zeros();
-    len_wake = round((length(find(latent_frames(:,2)==1)))/(length(latent_frames)),3);
-    len_nrem = round((length(find(latent_frames(:,2)==3)))/(length(latent_frames)),3);
-    len_nremtorem = round((length(find(latent_frames(:,2)==4)))/(length(latent_frames)),3);
-    len_rem = round((length(find(latent_frames(:,2)==5)))/(length(latent_frames)),3);
+    state_per = zeros(length(states.keys),1);
+    string_per = '';
+    for s=1:length(state_per)
+        state_per(s) = round((length(find(latent_frames(:,2)==states.keys(s))))/(length(latent_frames)),3);
+        string_per = strcat(string_per, states.names(s), {': '}, num2str(state_per(s)*100), {'% '});
+    end
     
     % Extracting Power Band and EMG Values from the epochs belonging to
     % specific latent states 
@@ -52,9 +53,8 @@ for l=1:length(uniqueStates)
     boxplot(dPlotBand,'Labels',powerband_features)
     ylim([min(band_range(1,:));max(band_range(2,:))])
     ylabel('Log Power')
-    title(['LS ',num2str(l),' - ',num2str(length(latent_frames)),' epochs',...
-        newline,'WAKE: ',num2str(len_wake*100),'% ,NREM: ',num2str(len_nrem*100),...
-        '% ,NREM-REM: ',num2str(len_nremtorem*100),'% ,REM: ',num2str(len_rem*100),'%'])
+    title(strcat('LS ',num2str(l),' - ',num2str(length(latent_frames)),' epochs',...
+         {newline},string_per))
     
     subplot(1,3,3)
     boxplot(dPlotEMG)
