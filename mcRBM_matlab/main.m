@@ -12,7 +12,7 @@ clc
 cd AnalysisResults
 %% Training data
 
-lfpFeatures = load('LFPBuzFeatures4_long_g.mat');
+lfpFeatures = load('lfpFeatures_buz.mat');
 d = lfpFeatures.lfpFeatures;
 
 totnumcases = size(d,1);
