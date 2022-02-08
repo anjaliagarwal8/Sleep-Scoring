@@ -16,7 +16,7 @@ emg_range = [floor(min(d(:,size(d,2)))); ceil(max(d(:,size(d,2))))];
 [status, msg, msgID] = mkdir('BoxPlots');
 cd BoxPlots
 
-for l=1:length(uniqueStates)
+for l=1:size(uniqueStates,1)
     idx = find(inferredStates(:,1) == l);
     latent_frames = inferredStates(idx,:);
     
