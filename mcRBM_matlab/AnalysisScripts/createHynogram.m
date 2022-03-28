@@ -59,6 +59,7 @@ end
 
 wake_m = find(manualscore==1);
 manualscore(wake_m) = 2;
+sortedLS = ["1w","2w","3w","4w","5w","6w","7w","8w","9w","10w","11n","12n","13n","14r"];
 
 subplot(2,1,1)
 plot(manualscore)
@@ -67,4 +68,4 @@ set(gca,'ytick',[2:5],'yticklabel',states)
 subplot(2,1,2)
 plot(sortedLatentStates)
 ylim([0.8,14.2])
-set(gca,'ytick',[1:14],'yticklabel',latentstates)
+set(gca,'ytick',[1:14],'yticklabel',sortedLS)
