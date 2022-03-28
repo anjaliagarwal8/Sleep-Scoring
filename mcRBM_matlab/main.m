@@ -80,3 +80,4 @@ states = load('states.mat');
 AnalyzeStates(lfpFeatures,uniqueStates,inferredStates,states);
 [stageMat] = StageDistribution(uniqueStates,inferredStates,states);
 StatesHistogram(uniqueStates,inferredStates,stageMat);
+ComputeTransitions(uniqueStates,inferredStates,4);
