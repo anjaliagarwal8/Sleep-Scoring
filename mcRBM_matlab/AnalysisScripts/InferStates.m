@@ -95,8 +95,3 @@ for i=1:size(uniqueAct,1)
     RowIdx = find(ismember(binary_latentActivation, uniqueAct(i,:),'rows'));
     inferredStates(RowIdx,1) = i;
 end
-
-save uniqueStates.mat uniqueStates p_unique
-save inferredStates.mat inferredStates
-
-cd ../

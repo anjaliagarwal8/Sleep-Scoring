@@ -5,7 +5,6 @@ function StatesHistogram(uniqueStates,inferredStates,stageMat)
 [status, msg, msgID] = mkdir('statesHistogram');
 cd statesHistogram
 
-latentStates = length(uniqueStates);
 truestates = uniqueStates(:,1);
 frames = uniqueStates(:,2);
 

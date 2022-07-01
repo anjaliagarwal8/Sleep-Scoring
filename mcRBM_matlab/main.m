@@ -12,7 +12,7 @@ clc
 cd AnalysisResults
 %% Training data
 
-lfpFeatures = load('lfpFeatures_buz.mat');
+lfpFeatures = load('LFPBuzFeatures4_long_g.mat');
 d = lfpFeatures.lfpFeatures;
 
 totnumcases = size(d,1);
@@ -66,18 +66,18 @@ hmc_ave_rej =  hmc_target_ave_rej;
 
 data = data';
 [W,VF,FH,vb,hb_cov,hb_mean,hmc_step, hmc_ave_rej] = train_mcRBM(data,W,VF,FH,vb,hb_cov,hb_mean,batch_size,num_batches,num_vis,num_fac,num_epochs,startFH,startwd,doPCD,epsilonVF,epsilonFH,epsilonb,epsilonw_mean,epsilonb_mean,hmc_step_nr,hmc_target_ave_rej,hmc_step,hmc_ave_rej,weightcost_final,apply_mask);
-variables.W = W;
-variables.VF = VF;
-variables.FH = FH;
-variables.vb = vb;
-variables.hb_cov = hb_cov;
-variables.hb_mean = hb_mean;
+variables.W = W; %Weight 
+variables.VF = VF; %Visible Factor
+variables.FH = FH; %Factor Hidden
+variables.vb = vb; %visible bias
+variables.hb_cov = hb_cov; %hidden covariance bias
+variables.hb_mean = hb_mean; %hidden mean bias
 
 %% Analysis of the latent states and final weights
 
 states = load('states.mat');
 [uniqueStates,inferredStates] = InferStates(visData,variables,states);
-AnalyzeStates(lfpFeatures,uniqueStates,inferredStates,states);
-[stageMat] = StageDistribution(uniqueStates,inferredStates,states);
-StatesHistogram(uniqueStates,inferredStates,stageMat);
-ComputeTransitions(uniqueStates,inferredStates,4);
+[stageMat,sor_uniqueStates,sor_inferredStates] = StageDistribution(uniqueStates,inferredStates,states);
+AnalyzeStates(lfpFeatures,sor_uniqueStates,sor_inferredStates,states);
+StatesHistogram(sor_uniqueStates,sor_inferredStates,stageMat);
+ComputeTransitions(sor_uniqueStates,sor_inferredStates,4);

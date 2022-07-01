@@ -54,7 +54,7 @@ save transitionMatThresholded_LS.mat thresholdTransMat
 % 
 % mc = dtmc(transMat,'StateNames',["3","3","3","3","3","3","1","3","1","3","5"]);
 % figure;
-% graphplot(mc);
+% graphplot(mc,'ColorEdges',true);
 % saveas(gcf,'markovgraph.png')
 %% HeatMap
 % imagesc(countTransMat)
