@@ -69,8 +69,27 @@ FeaturePlots(DeltaBandPFC,ThetaBandPFC,BetaBandPFC,EMG,'PFC')
 FeaturePlots(DeltaBandHPC,ThetaBandHPC,BetaBandHPC,EMG,'HPC')
 
 cd ../
+
 %% Downsampling the scored states to match with the features
 States = load('2019-05-21_14-56-02_Post-trial5-states.mat');
-%downsampledStates = downsample(States.states,8);
+
+% Enter the manual states present and integer values defining them. Make
+% sure the integer values or keys starts with one and are in consecutive order and the array
+% does not contain any value other than the keys
+names = ["wake","nrem","nrem2rem","rem"];
+keys = [1,2,3,4];
+
+% Checking the array for any unwanted value 
+logical_low = States.states < keys(1);
+logical_high = States.states > keys(2);
+
+if(any(logical_low==1))
+    disp("The states array contains values lower than one. Please check.")
+end
+
+if(any(logical_high==1))
+    disp("The states array contains values higher than mentioned in the keys. Please check.")
+end
+
 downsampledStates = States.states(1:10837);
-save states.mat downsampledStates
+save states.mat downsampledStates names keys 
