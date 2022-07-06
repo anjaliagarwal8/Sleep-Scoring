@@ -1,11 +1,11 @@
-function StatesHistogram(uniqueStates,inferredStates,stageMat)
+function [LSassignMat] = StatesHistogram(uniqueStates,inferredStates,stageMat,states)
 %% Method computing the histogram over the desired latent states &
 % reordering it for visualization.
 
 [status, msg, msgID] = mkdir('statesHistogram');
 cd statesHistogram
 
-latentStates = length(uniqueStates);
+latentStates = size(uniqueStates,1);
 truestates = uniqueStates(:,1);
 frames = uniqueStates(:,2);
 
@@ -14,6 +14,16 @@ bar(truestates,frames)
 xlabel('Latent States')
 ylabel('Number of Frames')
 saveas(histfigure,'statesHistogram.png')
+
+%% Assigning latent states to manual states based on number of frames
+LSassignMat = zeros(latentStates,2);
+for i=1:latentStates
+    [~,idx] = max(stageMat(i,:));
+    LSassignMat(i,1) = i;
+    LSassignMat(i,2) = idx;
+end
+
+save LSassignMat.mat LSassignMat
 
 % Compute histogram over latent states of interest
 % centroidsHist = zeros(latentStates,3);
