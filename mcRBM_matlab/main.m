@@ -2,17 +2,12 @@ clear
 clc
 
 %% Main program to execute mean-covariance Restricted Boltzmann Machines (mcRBM)
-% Here parameters and data can be initialized
-% [DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2.continuous');
-% [DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH33.continuous');
-% % extracting the sampling frequency of the data
-% SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 
 [status, msg, msgID] = mkdir('AnalysisResults');
 cd AnalysisResults
 %% Training data
 
-lfpFeatures = load('lfpFeatures_buz.mat');
+lfpFeatures = load('LFPBuzFeatures4_long_g.mat');
 d = lfpFeatures.lfpFeatures;
 
 totnumcases = size(d,1);
@@ -76,8 +71,11 @@ variables.hb_mean = hb_mean;
 %% Analysis of the latent states and final weights
 
 states = load('states.mat');
+features = {'Delta-PFC','Theta-HPC','Beta-PFC','Gamma-HPC','EMG-like'};
 [uniqueStates,inferredStates] = InferStates(visData,variables,states);
 AnalyzeStates(lfpFeatures,uniqueStates,inferredStates,states);
 [stageMat] = StageDistribution(uniqueStates,inferredStates,states);
-StatesHistogram(uniqueStates,inferredStates,stageMat);
-ComputeTransitions(uniqueStates,inferredStates,4);
+[LSassignMat] = StatesHistogram(uniqueStates,inferredStates,stageMat);
+ComputeTransitions(uniqueStates,inferredStates,states);
+PlotHypnogram(uniqueStates,inferredStates,LSassignMat,states);
+AnalyzeFeatures(lfpFeatures,uniqueStates,inferredStates, features);
