@@ -2,17 +2,15 @@ clear
 clc
 
 %% Main program to execute mean-covariance Restricted Boltzmann Machines (mcRBM)
-% Here parameters and data can be initialized
-% [DataHPC, TimeVectLFP, HeadingData] = load_open_ephys_data_faster('100_CH2.continuous');
-% [DataPFC, ~, ~] = load_open_ephys_data_faster('100_CH33.continuous');
-% % extracting the sampling frequency of the data
-% SamplingFreq = HeadingData.header.sampleRate;       % Sampling frequency of the data
 
 [status, msg, msgID] = mkdir('AnalysisResults');
 cd AnalysisResults
 %% Training data
 
 lfpFeatures = load('LFPBuzFeatures4_long_g.mat');
+states = load('states.mat');
+features = {'Delta-PFC','Theta-HPC','Beta-PFC','Gamma-HPC','EMG-like'};
+
 d = lfpFeatures.lfpFeatures;
 
 totnumcases = size(d,1);
@@ -75,9 +73,10 @@ variables.hb_mean = hb_mean; %hidden mean bias
 
 %% Analysis of the latent states and final weights
 
-states = load('states.mat');
 [uniqueStates,inferredStates] = InferStates(visData,variables,states);
 [stageMat,sor_uniqueStates,sor_inferredStates] = StageDistribution(uniqueStates,inferredStates,states);
 AnalyzeStates(lfpFeatures,sor_uniqueStates,sor_inferredStates,states);
-StatesHistogram(sor_uniqueStates,sor_inferredStates,stageMat);
-ComputeTransitions(sor_uniqueStates,sor_inferredStates,4);
+[LSassignMat] = StatesHistogram(sor_uniqueStates,sor_inferredStates,stageMat);
+ComputeTransitions(sor_uniqueStates,sor_inferredStates,states);
+PlotHypnogram(sor_uniqueStates,sor_inferredStates,LSassignMat,states);
+AnalyzeFeatures(lfpFeatures,sor_uniqueStates,sor_inferredStates, features);

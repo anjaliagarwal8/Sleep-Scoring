@@ -1,8 +1,8 @@
-function ComputeTransitions(uniqueStates,inferredStates,nStates)
+function ComputeTransitions(uniqueStates,inferredStates,states)
 %% Script written for finding the transition probability of each latent state
 
 countTransMat_L = zeros(size(uniqueStates,1),size(uniqueStates,1));
-countTransMat_M = zeros(nStates,nStates);
+countTransMat_M = zeros(length(states.keys),length(states.keys));
 
 %% Computing transition probability matrix of latent states
 for i=1:length(inferredStates)-1
@@ -48,15 +48,17 @@ thresholdTransMat = transMat_L;
 save transitionMatThresholded_LS.mat thresholdTransMat
 
 %% Plotting the directed graph for visualizing the latent states transitions
+mcManual = dtmc(transMat_M,'StateNames',states.names);
+mcLatent = dtmc(transMat_L);
 
-% G = digraph(countTransMat);
-% plot(G)
-% 
-% mc = dtmc(transMat,'StateNames',["3","3","3","3","3","3","1","3","1","3","5"]);
-% figure;
-% graphplot(mc,'ColorEdges',true);
-% saveas(gcf,'markovgraph.png')
-%% HeatMap
-% imagesc(countTransMat)
+mcManualfigure = figure('visible','off');
+graphplot(mcManual,'ColorEdges',true);
+title('Markov Chain for Manual States')
+saveas(mcManualfigure,['ManualMC','.png'])
+
+mcLatentfigure = figure('visible','off');
+graphplot(mcLatent,'ColorEdges',true);
+title('Markov Chain for Latent States')
+saveas(mcLatentfigure,['LatentMC','.png'])
 
 cd ../
